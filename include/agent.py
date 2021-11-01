@@ -91,12 +91,50 @@ class agent(object):
     #check if two nodes are neibor by check if they share vertex
     def ifNeibor(self, node1, node2):
         list1 = [node1.vertex, node1.vertex_nw, node1.vertex_se, node1.vertex_ne]
+
         list2 = [node2.vertex, node2.vertex_nw, node2.vertex_se, node2.vertex_ne]
+        
         nt1 = map(tuple, list1)
         nt2 = map(tuple, list2)
         st1 = set(nt1)
         st2 = set(nt2)
-        list3 = list(set(st1).intersection(st2))
+        list3 = list(set(st1).intersection(st2)) #share vertex
+        
+        xs1 = node1.vertex[0]
+        xl1 = node1.vertex_ne[0]
+        ys1 = node1.vertex[1]
+        yl1 = node1.vertex_ne[1]
+        
+        xs2 = node2.vertex[0]
+        xl2 = node2.vertex_ne[0]
+        ys2 = node2.vertex[1]
+        yl2 = node2.vertex_ne[1]
+        
+        if xl2 == xs1: #may W
+            if yl2 >= ys1 and yl2 <= yl1:
+                return True
+            elif ys2 >= ys1 and ys2 <= yl1:
+                return True
+            
+        if xs2 == xl1: #may E
+            if yl2 >= ys1 and yl2 <= yl1:
+                return True
+            elif ys2 >= ys1 and ys2 <= yl1:
+                return True
+            
+        if ys2 == yl1: #may N
+            if xl2 >= xs1 and xl2 <= xl1:
+                return True
+            elif xs2 >= xs1 and xs2 <= xl1:
+                return True
+        
+        if yl2 == ys1: #may S
+            if xl2 >= xs1 and xl2 <= xl1:
+                return True
+            elif xs2 >= xs1 and xs2 <= xl1:
+                return True
+                
+        
         if len(list3) > 0 and len(list3) < 4:
             return True
         else:
