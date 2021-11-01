@@ -29,11 +29,8 @@ agent.move(step): move the agent to desired position
 you should be fine if you can understand how **testRun.py** work
 
 all the code is comment, please contact me if you have any question.
+![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20160401.png)
 
-![image](Figure 2021-11-01 160401.png)
-![image](Figure 2021-11-01 160418.png)
-![image](Figure 2021-11-01 160422.png)
-![image](Figure 2021-11-01 160439.png)
 
 ### Dependencies
 python 3.7
