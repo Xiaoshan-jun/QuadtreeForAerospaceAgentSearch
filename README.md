@@ -26,10 +26,14 @@ agent.move(step): move the agent to desired position
 ## Getting Started
 *testRun.py is the sample code show how we build the path graph and move agent on the graph
 
-you should be fine if you can understand how **testRun.py** work
+you should be fine if you can understand how **testRun.py** work. If you run it correctly, the output results should look like:
 
-all the code is comment, please contact me if you have any question.
 ![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20160401.png)
+![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20160418.png)
+![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20160422.png)
+![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20160439.png)
+
+all the code is comment, please contact me if you have any question. 
 
 
 ### Dependencies
