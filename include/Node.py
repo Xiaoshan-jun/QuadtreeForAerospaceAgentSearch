@@ -6,7 +6,8 @@ Node save the location of the area, the cost to reach this area, and the cost to
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """
-from matplotlib.pylab import *
+import matplotlib.pyplot as plt
+import matplotlib.colors
 import matplotlib.cm as cm
 import numpy as np
 

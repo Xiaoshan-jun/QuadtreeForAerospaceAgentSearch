@@ -20,6 +20,7 @@ class Tree(object):
         
     #root node calls the addChild() function, which described in Node.py. All the nodes are created
     def openTree(self):
+        print("building tree....")
         self.root.addChild()
     #load the cost value of nodes
     #--------------------------------------------
@@ -29,14 +30,13 @@ class Tree(object):
         #The pre-defined map records the cost of leaving each area by each direaction.
     #---------------------------------------------
     def loadCost(self, costMap, moveCostMap):
+        print("loading cost map....")
         ax = plt.axes() 
         for i in range(pow(2, self.maxDepth)): #pow(2, self.maxDepth) is the size of the world.
             for j in range(pow(2, self.maxDepth)):
                 node = self.locateNode(i+0.1,j+0.1) #because i,j is on vertex, so we increase a bit. e.g. [0,0] represent the place formed by vertex [0,0] [0,1],[1,0],[1,1]
                 node.updateCostLeaf(costMap[i][j]) #see Node.py
                 node.updateMoveCost(moveCostMap[i][j]) #see Node.py
-                print(node.getCenter())
-                print(node.getCost())
                 #ax = plt.gca().add_patch(node.drawSquare())
                 ax.add_patch(node.drawSquare())
         plt.axis('scaled') 

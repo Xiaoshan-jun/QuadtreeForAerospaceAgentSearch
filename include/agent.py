@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct 22 22:23:00 2021
-Agent Class can choose the appropriate nodes to build path map
+Agent Class can choose the appropriate nodes to build path graph
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """
@@ -12,51 +12,55 @@ import numpy as np
 
 class agent(object): 
     def __init__(self, tree, position, target):
-        self.tree = tree
-        self.position = position
-        self.currentNode = None
-        self.target = target
-        self.targetNode = None
+        self.tree = tree 
+        self.position = position #current position in (x, y)
+        self.currentNode = None #current node where the agent locate
+        self.currentNodeIndex = 0  #the index currentNode in RequiredNode. RequiredNode[currentNodeIndex] == currentNode
+        self.target = target #current target in (x, y)
+        self.targetNode = None #target node where the destination locate
+        self.targetNodeIndex = 0 #the index targetNode in RequiredNode
         self.RequiredNode = []
-        self.graph = None
+        self.graph = None #[n,n] array save the cost from node1 to node2
         self.findRequiredNode()
         self.buildPathGraph()
         
     def findRequiredNode(self):
+        print("finding required node for path planing....")
         tree = self.tree
-        openedNode = [tree.getRoot()]
-        ac = self.position
-        tc = self.target
+        openedNode = [tree.getRoot()] #create a list of wait to be open
+        ac = self.position #agent center
+        tc = self.target #target center
         while openedNode:
-            #check if the Node should be explore
+            #get the first node in the openedNode list
             node = openedNode.pop(0)
             while node == None: #skip None
                 node = openedNode.pop(0)
+            #if it is a leaf node, add into RequiredNode, and check if it is the agent/target node
             if node.getIsLeaf(): 
                 self.RequiredNode.append(node)
                 #check if the Node is the agent locate
                 ax = ac[0]
                 ay = ac[1]
                 xl, yl, xh, yh = node.getVertex()
-                if ax >= xl and ay >= yl and ax < xh and ay < yh: 
-            #(consider agent is in the node if on left/bottom edge)
+                if ax >= xl and ay >= yl and ax < xh and ay < yh:  #(consider agent is in the node if on left/bottom edge)
                     self.currentNode = node
+                    self.currentNodeIndex = len(self.RequiredNode) - 1
                 #check if the Node is the agent's target locate
                 tx = tc[0]
                 ty = tc[1]
                 xl, yl, xh, yh = node.getVertex()
-                if tx >= xl and ty >= yl and tx < xh and ty < yh: 
-            #(consider agent is in the node if on left/bottom edge)
+                if tx >= xl and ty >= yl and tx < xh and ty < yh:  #(consider agent is in the node if on left/bottom edge)
                     self.targetNode = node
+                    self.targetNodeIndex = len(self.RequiredNode) - 1
             else:  
                 nc = node.getCenter()
                 xd = (nc[0] - ac[0])**2
                 yd = (nc[1] - ac[1])**2
-                dist = np.sqrt(xd + yd)
+                dist = np.sqrt(xd + yd) #the distance between current node and agent position
                 xd2 = (nc[0] - tc[0])**2
                 yd2 = (nc[1] - tc[1])**2
-                dist2 = np.sqrt(xd2 + yd2) 
-                #check if the Node should be explore
+                dist2 = np.sqrt(xd2 + yd2)  #the distance between current node and targets position
+                #check if the Node should be explore, we only explore node is close to the agent and target
                 if dist <= 2**(node.getDepthFromBottom()) or dist2 <= 2**(node.getDepthFromBottom()): 
                     openedNode.extend(node.getallChild())
                 else:
@@ -64,18 +68,27 @@ class agent(object):
         return self.RequiredNode
     
     def buildPathGraph(self):
-        Graph = np.zeros((len(self.RequiredNode), len(self.RequiredNode)))
+        print("building path graph for path planing....")
+        plt = self.drawGraph() #load node map
+        Graph = np.zeros((len(self.RequiredNode), len(self.RequiredNode))) + 10000
         for i in range(len(self.RequiredNode)):
-            for j in range(i + 1, len(self.RequiredNode)):
+            for j in range(len(self.RequiredNode)):
                 node1 = self.RequiredNode[i]
                 node2 = self.RequiredNode[j]
                 if self.ifNeibor(node1, node2):
+                    x = [node1.getCenter()[0], node2.getCenter()[0]]
+                    y = [node1.getCenter()[1], node2.getCenter()[1]]
+                    plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
                     direction, dist = self.checkRelativePosition(node1, node2)
-                    Graph[i][j] = dist * node1.getMoveCost(direction)
+                    Graph[i][j] = round(dist * node1.getMoveCost(direction))
+                    if dist > 4:
+                        plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
+        plt.show()
+        return self.graph
         
                 
-                
+    #check if two nodes are neibor by check if they share vertex
     def ifNeibor(self, node1, node2):
         list1 = [node1.vertex, node1.vertex_nw, node1.vertex_se, node1.vertex_ne]
         list2 = [node2.vertex, node2.vertex_nw, node2.vertex_se, node2.vertex_ne]
@@ -88,7 +101,8 @@ class agent(object):
             return True
         else:
             return False
-
+        
+        #check the node2's position relative to node1, and distance between these two node
     def checkRelativePosition(self, node1, node2):
         c1 = node1.getCenter()
         c1x = c1[0]
@@ -122,8 +136,14 @@ class agent(object):
     def getCurrentNode(self):
         return self.currentNode
     
+    def getCurrentNodeIndex(self):
+        return self.currentNodeIndex
+    
     def getTargetNode(self):
         return self.targetNode
+    
+    def getTargetNodeIndex(self):
+        return self.targetNodeIndex
     
     def drawGraph(self):
         plt.axes()
@@ -132,43 +152,22 @@ class agent(object):
         plt.gca().add_patch(self.getCurrentNode().drawAgent())
         plt.gca().add_patch(self.getTargetNode().drawTarget())
         plt.axis('scaled')
-        plt.show()
+        plt.title('opened node for agent(' +str(self.position[0]) + ',' + str(self.position[1]) + ')' )
+        graph = plt
+        return graph
     
-        
+    #move the agent to desired position, reload the graph
     def move(self, step):
         self.position = step
-       
-    def findcurrentNode(self):
-        currentNode = self.root
-        self.positionInNode = None
-        self.openedNode = [currentNode]
-        while currentNode.isLeaf != True:
-            self.openedNode.append(currentNode.getChild(0))
-            self.openedNode.append(currentNode.getChild(1))
-            self.openedNode.append(currentNode.getChild(2))
-            self.openedNode.append(currentNode.getChild(3))
-            nodeCenter = currentNode.getCenter()
-            xc = nodeCenter[0]
-            yc = nodeCenter[1]
-            #SW
-            if self.position[0] <= xc and self.position[1] <= yc:
-                currentNode = currentNode.getChild(0)
-                self.positionInNode = 0 #0 denotes SW, 1 denotes SE, 2 denotes NW, 3 denotes NE
-            else:
-                self.openedNode.append(currentNode.getChild(0))
-            #SE
-            if self.position[0] > xc and self.position[1] <= yc:
-                currentNode = currentNode.getChild(1)
-                self.positionInNode = 1 #1 denotes SE
-            #NW
-            if self.position[0] <= xc and self.position[1] > yc:
-                currentNode = currentNode.getChild(2)
-                self.positionInNode = 2 #2 denotes NW
-            #NE
-            if self.position[0] > xc and self.position[1] > yc:
-                currentNode = currentNode.getChild(3)
-                self.positionInNode = 3 #3 denotes NE
-        self.currentNode = currentNode
-        return currentNode
+        self.RequiredNode = []
+        self.graph = None
+        self.findRequiredNode()
+        self.buildPathGraph()
+
+    def getGraph(self):
+        return self.graph
+    
+    def getRequiredNode(self):
+        return self.RequiredNode
 
     
