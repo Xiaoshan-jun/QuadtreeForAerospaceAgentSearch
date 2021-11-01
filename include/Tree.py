@@ -1,89 +1,73 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Oct 13 13:27:48 2021
-original C
-Created on: Feb 18, 2015
- *      Author: florian
-@author: Jun Xiang 
+Tree Class save the root node which represents the whole world.
+Tree Class has functions that create all the nodes.
+@author:Jun Xiang 
+@email: jxiang9143@sdsu.edu 
 """
 from include.Node import Node
-from include.agent import agent
 import matplotlib.pyplot as plt
+import matplotlib.colorbar as cbar
 import numpy as np
+
 class Tree(object): 
-    def __init__(self, maxDepth):
-        self.root = Node(maxDepth, 0, [0,0], pow(2,maxDepth), None, None) #root of the tree, root is depth 0
+    def __init__(self, maxDepth,costMap, moveCostMap):
+        self.root = Node(maxDepth, 0, [0,0], pow(2,maxDepth), None, None) #root of the tree, root's depth is 0, pow(2, self.maxDepth) is the size of the world.
         self.maxDepth = maxDepth #max depth of the tree
-        self.allNode = [self.root]
-        self.agentList = []
+        self.openTree() #create all the quadnodes in this world
+        self.loadCost(costMap, moveCostMap) #save all the cost values into the node
         
-    def createAgent(self, position, target):
-        self.agentList.append(agent(self, position, target))
+    #root node calls the addChild() function, which described in Node.py. All the nodes are created
+    def openTree(self):
+        self.root.addChild()
+    #load the cost value of nodes
+    #--------------------------------------------
+    #input:
+        #costMap: the size is (x,x), x denotes the length of one edge of this square world. The pre-defined map record the cost value of responded area.
+        #moveCostMap: the size is (x,x,8), x denotes the length of one edge of this square world. 8 is the 8 different direction.
+        #The pre-defined map records the cost of leaving each area by each direaction.
+    #---------------------------------------------
+    def loadCost(self, costMap, moveCostMap):
+        ax = plt.axes() 
+        for i in range(pow(2, self.maxDepth)): #pow(2, self.maxDepth) is the size of the world.
+            for j in range(pow(2, self.maxDepth)):
+                node = self.locateNode(i+0.1,j+0.1) #because i,j is on vertex, so we increase a bit. e.g. [0,0] represent the place formed by vertex [0,0] [0,1],[1,0],[1,1]
+                node.updateCostLeaf(costMap[i][j]) #see Node.py
+                node.updateMoveCost(moveCostMap[i][j]) #see Node.py
+                print(node.getCenter())
+                print(node.getCost())
+                #ax = plt.gca().add_patch(node.drawSquare())
+                ax.add_patch(node.drawSquare())
+        plt.axis('scaled') 
+        plt.title('cost value map') 
+        plt.show() #draw the cost value picture TO DO: add colorbar 
         
-    def drawGraph(self):
-        plt.axes()
-        mapReadyNode = []
-        for node in self.allNode:
-            if node.mapReady():
-                plt.gca().add_patch(node.drawSquare())
-                mapReadyNode.append(node)
-        for agent in self.agentList:
-            plt.gca().add_patch(agent.getCurrentNode().drawAgent())
-            plt.gca().add_patch(agent.getTargetNode().drawTarget())
-        plt.axis('scaled')
-        plt.show()
-        return mapReadyNode
-    
-
-    def getAgent(self, i):
-        return self.agentList[i]
-
-    def openNode(self, node):
-        if node.openable:
-            n1, n2, n3, n4 = node.addChild()
-            self.allNode.append(n1)
-            self.allNode.append(n2)
-            self.allNode.append(n3)
-            self.allNode.append(n4)
-            return n1,n2,n3,n4
-        else:
-            return None
-    
+                
+    #return root
     def getRoot(self):
         return self.root
         
-    def getAllNode(self):
-        return self.allNode
+    #find the leaf node that represents the input position.
+    def locateNode(self, x, y):
+        currentNode = self.root
+        while currentNode.isLeaf != True:
+            nodeCenter = currentNode.getCenter()
+            xc = nodeCenter[0]
+            yc = nodeCenter[1]
+            #SW
+            if x <= xc and y <= yc:
+                currentNode = currentNode.getChild(0)
+            #SE
+            if x > xc and y <= yc:
+                currentNode = currentNode.getChild(1)
+            #NW
+            if x <= xc and y > yc:
+                currentNode = currentNode.getChild(2)
+            #NE
+            if x > xc and y > yc:
+                currentNode = currentNode.getChild(3)
+        return currentNode
     
         
-    def copyWaveletTransform(self, filename):
-        with open(filename, 'r') as f:
-            for line in f:
-                self.wavelet_coefficients.append(float(line))
-        N = 7
-        self.recursiveWavelet(self.root,1, 1, self.wavelet_coefficients[0]*pow(2,-N), N);
-    
-    def recursiveWavelet(self, node, pt, sz, value, N):
-        if sz == pow(4, self.maxDepth):
-            node.setValue(abs(value))
-            return None
-        
-        node.setValue(abs(value))
-        A = value * pow(2,N)
-        H = self.wavelet_coefficients[pt]
-        V = self.wavelet_coefficients[pt+sz]
-        D = self.wavelet_coefficients[pt+2*sz]
-        side_size = np.sqrt(sz)
-        m = (pt-sz)% side_size # mod(index, side_size)
-        f = np.floor((pt-sz)/side_size) #floor(index/side_size)
-        std_pt = 4*(side_size*f + sz) + 2*m
-        for child_ind in range(4):
-            if child_ind == 0:
-                self.recursiveWavelet(node.getChild(0), int(std_pt+np.sqrt(sz*4)), sz*4,  pow(2,-N)*(A+H-V-D) ,N-1);
-            if child_ind == 1:
-                self.recursiveWavelet(node.getChild(1), int(std_pt+np.sqrt(sz*4))+1 , sz*4,  pow(2,-N)*(A-H-V+D) ,N-1 )
-            if child_ind == 2:
-                self.recursiveWavelet(node.getChild(2), int(std_pt), sz*4, pow(2,-N)*(A+H+V+D) ,N-1 );
-            if child_ind == 3:
-                self.recursiveWavelet(node.getChild(3), int(std_pt+1), sz*4, pow(2,-N)*(A-H+V-D) ,N-1 );
-        return None
+
