@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct 22 22:23:00 2021
-Agent Class can choose the appropriate nodes to build path graph
+Agent Class can pick the appropriate nodes and build path graph
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """
