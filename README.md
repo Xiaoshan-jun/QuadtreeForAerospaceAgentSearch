@@ -1,62 +1,42 @@
-# Project Title
-
-Simple overview of use/purpose.
+# Quadtree for Aerospace Agent Saearch
+Quadtree represents a 2d grid-base world
 
 ## Description
+Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area.
+Tree.py: Tree save the root node which represents the whole world. Tree Class has functions that create all the nodes.
+agent.py: agent pick the appropriate nodes and build the path graph as we want. The path graph shoule be able to further used by search algorithm.
 
-An in-depth paragraph about your project and overview of use.
+## Important function for search algorithm
+Tree(maxDepth,costMap, moveCostMap): Create the Tree. costMap/moveCostMap is predefined map property. maxDepth determined the size of the world. for example, if the size of world is 32*32, the maxDepth should be 5.
+agent(tree, position, target): Create the agent. **position** is the agent's start position, **target** is the destination of the agent.
+agent.getRequiredNode(): get all the node we need to build the path graph
+agent.getGraph(): get path graph
+agent.getCurrentNodeIndex(): get the index denotes the agent currently locate
+agent.getTargetNodeIndex(): get the index denotes the node the target currently locate
+agent.move(step): move the agent to desired position
 
 ## Getting Started
+*testRun.py has sample using code
+you should be fine if you can understand how **testRun.py** work
+all the code is comment, please contact me if you have any question.
 
 ### Dependencies
-
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
-
-### Installing
-
-* How/where to download your program
-* Any modifications needed to be made to files/folders
-
-### Executing program
-
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
-
-## Help
-
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
+python 3.7
+numpy
+matplotlib
 
 ## Authors
 
-Contributors names and contact info
-
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
+@author:Jun Xiang 
+@email: jxiang9143@sdsu.edu 
 
 ## Version History
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
 * 0.1
     * Initial Release
 
-## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
 
 ## Acknowledgments
 
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+
