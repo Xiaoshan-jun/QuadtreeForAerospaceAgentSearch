@@ -24,7 +24,7 @@ agent.getTargetNodeIndex(): get the index denotes the node the target currently 
 agent.move(step): move the agent to desired position
 
 ## Getting Started
-*testRun.py has sample using code
+*testRun.py is the sample code show how we build the path graph and move agent on the graph
 
 you should be fine if you can understand how **testRun.py** work
 
