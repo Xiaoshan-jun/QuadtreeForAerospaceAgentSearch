@@ -38,12 +38,12 @@ def search(frontier, explored, targetIndex, NodeList):
     while True:
         if frontier._index == 0:
             time_end=time.time()
-            print('time cost',time_end-time_start,'s')
+            print('fail time cost',time_end-time_start,'s')
             return False, False
         node = NodeList[frontier.pop()]
         if node.mark == targetIndex:
             time_end=time.time()
-            print('time cost',time_end-time_start,'s')
+            print('Reach time cost',time_end-time_start,'s')
             return node.path, node.gh
         explored.append(node.mark)
         for mark in node.avaliable:
@@ -59,7 +59,7 @@ def search(frontier, explored, targetIndex, NodeList):
                     child.path = node.path
                     child.path.append(child.mark)
     time_end=time.time()
-    print('time cost',time_end-time_start,'s')
+    print('Search time cost',time_end-time_start,'s')
 
 ## A star
 time_start=time.time()
@@ -67,11 +67,16 @@ obstacleMap = np.zeros((128,128))
 obstacleMap[5][5] = 1
 obstacleMap[5][6] = 1
 obstacleMap[5][7] = 1
+obstacleMap[5][8] = 1
+obstacleMap[3][2] = 1
+for i in range(15,20):
+    for j in range(20,30):
+        obstacleMap[i][j] = 1
 reserveMap = np.zeros((128,128))
 moveCostMap = np.zeros((128,128,8)) + 1
-tree = Tree(7, obstacleMap, reserveMap, moveCostMap)
+tree = Tree(5, obstacleMap, reserveMap, moveCostMap)
 #AstarAgent = agent(tree, [2,2],[63,63], 100)
-AstarAgent = agent(tree, [2,2],[100,100])
+AstarAgent = agent(tree, [2,2],[30,30])
 ##
 
 startIndex = AstarAgent.getCurrentNodeIndex() #find the currentNode
@@ -100,20 +105,33 @@ AstarAgent.buildBestGraph()
 #update costmap
 for mark in path:
     node = nodeList[mark]
-    vertex = node.getVertex()
-    size = node.getSize()
-    xl = int(vertex[0])
-    yl = int(vertex[1])
-    xh = int(vertex[0] + size)
-    yh = int(vertex[1] + size)
-    for x in range(xl, xh):
-        for y in range(yl, yh):
-            reserveMap[x][y] = 1/(size*size)
-            
-tree = Tree(5, obstacleMap, reserveMap, moveCostMap)
+    node.reserve(1)
 
-time_end=time.time()
-print('time cost',time_end-time_start,'s')
+
+AstarAgent.plotTree()
+AstarAgent2 = agent(tree, [2,6],[30,2])
+startIndex = AstarAgent2.getCurrentNodeIndex() #find the currentNode
+nodeList = AstarAgent2.getRequiredNode() #get the current opened node list
+graph = AstarAgent2.getGraph() #get the graph  
+for i in range(len(graph[0])):
+    possiblePath = graph[i]
+    avaliable = []
+    cost = []
+    for j in range(len(possiblePath)):
+        if possiblePath[j] < 10000:
+            avaliable.append(j)
+            cost.append(possiblePath[j])
+    nodeList[i].setAvaliable(avaliable)
+    nodeList[i].setMovingCost(cost)
+targetIndex = AstarAgent2.getTargetNodeIndex()
+frontier = PriorityQueue(nodeList)
+startnode = nodeList[startIndex]
+startnode.path = [startnode.mark]
+frontier.insert(startnode)
+explored = []
+path, cost= search(frontier, explored, targetIndex, nodeList)
+AstarAgent2.setBestPath(path)
+AstarAgent2.buildBestGraph()
 
 
 

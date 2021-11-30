@@ -241,7 +241,14 @@ class agent(object):
     def setBestPath(self, bestPath):
         self.bestPath = bestPath
     
-            
-            
+    def plotTree(self):
+        plt.figure(figsize = (32, 32), dpi=100)
+        ax = plt.axes() 
+        for node in self.RequiredNode:
+            if node:
+                ax.add_patch(node.drawSquare())
+        plt.axis('scaled') 
+        plt.title('Reserved map') 
+        plt.show()
 
     

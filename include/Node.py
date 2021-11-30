@@ -15,6 +15,7 @@ class Node(object):
     def __init__(self, maxDepth, depth, vertex, size, parent, position):
         self.maxDepth = maxDepth 
         self.mark = 0 #the index in the nodeList
+        self.reserved = 0
         self.capacity = 1 * pow(4, maxDepth - depth) #max capacity of this node, leaf node's capacity is 1
         self.depth = depth #depth of this node in the tree
         self.depthFromBottom = maxDepth - depth
@@ -26,6 +27,7 @@ class Node(object):
                          "1":None,
                          "2":None,
                          "3":None,   } #children dictionary 
+        self.childrenCount = 0
         self.moveCost = np.zeros(8) #the approximated unit cost if the agent leave this node
         #0: NW, 1:N, 2: NE, 3:W, 4:E, 5:SW 6:S,7:SE
         #N means the neibor which is above the current node, S: below, E: right, W: left
@@ -53,15 +55,19 @@ class Node(object):
         # 0 denotes SW, 1 denotes SE, 2 denotes NW, 3 denotes NE
             #add SW child node, vertex is the same as the parent node
             self.children["0"] = Node(self.maxDepth, self.depth + 1, self.vertex, self.size/2, self, 0)
+            self.childrenCount += 1
             self.children["0"].addChild()
             #add SE child node, x of vertex increased,  and y remains same
             self.children["1"] = Node(self.maxDepth, self.depth + 1, [self.vertex[0] + self.size/2, self.vertex[1]], self.size/2, self, 1)
+            self.childrenCount += 1
             self.children["1"].addChild()
             #add NW child node, x of vertex is same,  and y increase
             self.children["2"] = Node(self.maxDepth, self.depth + 1, [self.vertex[0], self.vertex[1] + self.size/2], self.size/2, self, 2)
+            self.childrenCount += 1
             self.children["2"].addChild()
             #add NE child node, x and y increase
             self.children["3"] = Node(self.maxDepth, self.depth + 1, [self.vertex[0] + self.size/2 , self.vertex[1] + self.size/2], self.size/2, self, 3)
+            self.childrenCount += 1
             self.children["3"].addChild()
             return self.children[str(0)], self.children[str(1)], self.children[str(2)], self.children[str(3)]
         elif self.isLeaf == False:
@@ -74,23 +80,40 @@ class Node(object):
         #parent's cost is equal to sum of its children
         if self.parent != None:
             pcost = 0
+            count = 0
             for child in self.parent.getallChild():
-                pcost += child.getCost()
-            self.parent.updateCostLeaf(pcost)
+                if child:
+                    pcost += child.getCost()
+                    count += 1
+            self.parent.updateCostLeaf(pcost/count)
         return cost
+    
+    def reserve(self, reserve):
+        if self.isLeaf:
+            self.reserved = 1
+        else:
+            self.reserved += reserve
+            children = self.getallChild()
+            for child in children:
+                if child:
+                    child.reserve(reserve/self.childrenCount)
+        
 #recursive function
 #update the moving cost of the leaf node, then all the parent node of this leaf node will be updated
     def updateMoveCost(self, pathCost):
         self.moveCost = pathCost
         if self.parent != None:
-            parent = self.parent 
-            #parent's move cost is equal to average of its children
-            parentCost = (parent.getChild(0).moveCost + parent.getChild(1).moveCost +
-            parent.getChild(2).moveCost + parent.getChild(3).moveCost)/4 
-            self.parent.updateMoveCost(parentCost)
+            pcost = 0
+            count = 0
+            for child in self.parent.getallChild():
+                if child:
+                    pcost += child.moveCost
+                    count += 1
+            self.parent.updateMoveCost(pcost/count)
     
     def removeChildren(self, position):
         self.children[str(position)] = None
+        self.childrenCount -= 1
         
     def hasNoChild(self):
         children = self.getallChild()
@@ -120,7 +143,7 @@ class Node(object):
         min_val = 0
         max_val = 1
         norm = matplotlib.colors.Normalize(min_val, max_val)
-        color_i = my_cmap(norm(self.cost)) 
+        color_i = my_cmap(norm(self.reserved/self.capacity)) 
         square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="red")
         return square
     #draw the symbol of the agent if the agent is here

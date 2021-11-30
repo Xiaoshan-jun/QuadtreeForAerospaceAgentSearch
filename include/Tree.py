@@ -10,6 +10,7 @@ from include.Node import Node
 import matplotlib.pyplot as plt
 import matplotlib.colorbar as cbar
 import numpy as np
+import time
 
 class Tree(object): 
     def __init__(self, maxDepth,obstacleMap, reserveMap ,moveCostMap):
@@ -22,6 +23,7 @@ class Tree(object):
     def openTree(self):
         print("building tree....")
         self.root.addChild()
+    
     #load the cost value of nodes
     #--------------------------------------------
     #input:
@@ -31,6 +33,8 @@ class Tree(object):
     #---------------------------------------------
     def loadCost(self, obstacleMap, reserveMap, moveCostMap):
         print("loading cost map....")
+        time_start=time.time()
+        plt.figure(figsize = (32, 32), dpi=100)
         ax = plt.axes() 
         for i in range(pow(2, self.maxDepth)): #pow(2, self.maxDepth) is the size of the world.
             for j in range(pow(2, self.maxDepth)):
@@ -38,14 +42,16 @@ class Tree(object):
                 if obstacleMap[i][j] == 1:
                     node.cutLeaf()
                 else:
-                    node.updateCostLeaf(reserveMap[i][j]) #see Node.py
+                    #node.updateCostLeaf(reserveMap[i][j]) #see Node.py
                     node.updateMoveCost(moveCostMap[i][j]) #see Node.py
                     ax.add_patch(node.drawSquare())
                 #ax = plt.gca().add_patch(node.drawSquare())
                 
         plt.axis('scaled') 
-        plt.title('cost value map') 
+        plt.title('Reserved map') 
         plt.show() #draw the cost value picture TO DO: add colorbar 
+        time_end=time.time()
+        print('time cost',time_end-time_start,'s')
         
                 
     #return root
