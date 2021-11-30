@@ -29,6 +29,12 @@ index = possiblePath.argmin() #find the path with the min cost
 step = nodeList[index].getCenter() #move to the desired node
 agent.move(step)
 
+## A star
+
+costMap = np.zeros((32,32))
+moveCostMap = np.round(np.random.random((32,32,8))) + 1
+tree = Tree(5, costMap, moveCostMap)
+
 
 
 

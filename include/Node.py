@@ -14,6 +14,7 @@ import numpy as np
 class Node(object):
     def __init__(self, maxDepth, depth, vertex, size, parent, position):
         self.maxDepth = maxDepth 
+        self.mark = 0 #the index in the nodeList
         self.reserveOccupy = 0 #expected number of how many airplane will reserve this node
         self.capacity = 1 * pow(4, maxDepth - depth) #max capacity of this node, leaf node's capacity is 1
         self.depth = depth #depth of this node in the tree
@@ -38,6 +39,11 @@ class Node(object):
         self.vertex_ne = [vertex[0] + size,  vertex[1] + size] #vertex_ne is the position of the top right of the vertex
         self.size = size #size is the length of the side of square the node represents
         self.cost = 0 #cost of reach this node
+        self.h = 0# distance to the target
+        self.gh = 0 #cost for search
+        self.path = [] #path reach the node, for search
+        self.avaliable = [] #the avaliable node can arrive from this node
+        self.movingCost = [] #the avaliable node can arrive from this node
         
 
 #recursive function
@@ -93,7 +99,7 @@ class Node(object):
         return self.children[str(0)], self.children[str(1)], self.children[str(2)], self.children[str(3)]
     #draw the area this node represents on the 2d world with the cost value, different color represent different cost value
     def drawSquare(self): 
-        my_cmap = cm.get_cmap('jet')
+        my_cmap = cm.get_cmap('Reds')
         min_val = 0
         max_val = 50
         norm = matplotlib.colors.Normalize(min_val, max_val)
@@ -108,6 +114,7 @@ class Node(object):
     def drawTarget(self):
         cycle = plt.Circle(self.center,0.35, fc='green',ec="red")
         return cycle
+    
 
     """
     #implementing the reserve function, not finished  
@@ -174,6 +181,14 @@ class Node(object):
     def mapReady(self):
         return self.isOpen == False
         
+    def setAvaliable(self, avaliable):
+        self.avaliable = avaliable
 
+    def setMovingCost(self, movingCost):
+        self.movingCost = movingCost
 
-
+    def setMark(self, mark):
+        self.mark = mark
+        
+    def setH(self, h):
+        self.h = h

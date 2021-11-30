@@ -11,8 +11,9 @@ import numpy as np
 
 
 class agent(object): 
-    def __init__(self, tree, position, target):
+    def __init__(self, tree, position, target, eDistance = 2):
         self.tree = tree 
+        self.eDistance = eDistance #defalut 2
         self.position = position #current position in (x, y)
         self.currentNode = None #current node where the agent locate
         self.currentNodeIndex = 0  #the index currentNode in RequiredNode. RequiredNode[currentNodeIndex] == currentNode
@@ -20,9 +21,12 @@ class agent(object):
         self.targetNode = None #target node where the destination locate
         self.targetNodeIndex = 0 #the index targetNode in RequiredNode
         self.RequiredNode = []
+        self.pathmap = None #plt of path
         self.graph = None #[n,n] array save the cost from node1 to node2
+        self.bestPath = []
         self.findRequiredNode()
         self.buildPathGraph()
+        
         
     def findRequiredNode(self):
         print("finding required node for path planing....")
@@ -37,6 +41,12 @@ class agent(object):
                 node = openedNode.pop(0)
             #if it is a leaf node, add into RequiredNode, and check if it is the agent/target node
             if node.getIsLeaf(): 
+                node.setMark(len(self.RequiredNode))
+                nc = node.getCenter()
+                xd2 = (nc[0] - tc[0])**2
+                yd2 = (nc[1] - tc[1])**2
+                dist2 = np.sqrt(xd2 + yd2)
+                node.setH(dist2)
                 self.RequiredNode.append(node)
                 #check if the Node is the agent locate
                 ax = ac[0]
@@ -61,9 +71,11 @@ class agent(object):
                 yd2 = (nc[1] - tc[1])**2
                 dist2 = np.sqrt(xd2 + yd2)  #the distance between current node and targets position
                 #check if the Node should be explore, we only explore node is close to the agent and target
-                if dist <= 2**(node.getDepthFromBottom()) or dist2 <= 2**(node.getDepthFromBottom()): 
+                if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()): 
                     openedNode.extend(node.getallChild())
                 else:
+                    node.setMark(len(self.RequiredNode))
+                    node.setH(dist2)
                     self.RequiredNode.append(node)
         return self.RequiredNode
     
@@ -84,8 +96,24 @@ class agent(object):
                     if dist > 4:
                         plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
-        plt.show()
+        self.pathmap = plt
+        #plt.show()
         return self.graph
+    
+    def buildBestGraph(self):
+        print("building best path graph for path planing....")
+        
+        plt = self.pathmap #load path map
+        
+        for i in range(len(self.bestPath) - 1):
+                node1 = self.RequiredNode[self.bestPath[i]]
+                node2 = self.RequiredNode[self.bestPath[i + 1]]
+                x = [node1.getCenter()[0], node2.getCenter()[0]]
+                y = [node1.getCenter()[1], node2.getCenter()[1]]
+                plt.plot(x, y, 'yo', linewidth=3 , markersize = 0.3, linestyle="--")
+
+        plt.show()
+        return None
         
                 
     #check if two nodes are neibor by check if they share vertex
@@ -184,6 +212,7 @@ class agent(object):
         return self.targetNodeIndex
     
     def drawGraph(self):
+        plt.figure(figsize = (32, 32), dpi=100)
         plt.axes()
         for node in self.RequiredNode:
             plt.gca().add_patch(node.drawSquare())
@@ -207,5 +236,8 @@ class agent(object):
     
     def getRequiredNode(self):
         return self.RequiredNode
+    
+    def setBestPath(self, bestPath):
+        self.bestPath = bestPath
 
     
