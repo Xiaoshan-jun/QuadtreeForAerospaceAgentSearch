@@ -12,11 +12,11 @@ import matplotlib.colorbar as cbar
 import numpy as np
 
 class Tree(object): 
-    def __init__(self, maxDepth,costMap, moveCostMap):
+    def __init__(self, maxDepth,obstacleMap, reserveMap ,moveCostMap):
         self.root = Node(maxDepth, 0, [0,0], pow(2,maxDepth), None, None) #root of the tree, root's depth is 0, pow(2, self.maxDepth) is the size of the world.
         self.maxDepth = maxDepth #max depth of the tree
         self.openTree() #create all the quadnodes in this world
-        self.loadCost(costMap, moveCostMap) #save all the cost values into the node
+        self.loadCost(obstacleMap, reserveMap ,moveCostMap) #save all the cost values into the node
         
     #root node calls the addChild() function, which described in Node.py. All the nodes are created
     def openTree(self):
@@ -29,16 +29,20 @@ class Tree(object):
         #moveCostMap: the size is (x,x,8), x denotes the length of one edge of this square world. 8 is the 8 different direction.
         #The pre-defined map records the cost of leaving each area by each direaction.
     #---------------------------------------------
-    def loadCost(self, costMap, moveCostMap):
+    def loadCost(self, obstacleMap, reserveMap, moveCostMap):
         print("loading cost map....")
         ax = plt.axes() 
         for i in range(pow(2, self.maxDepth)): #pow(2, self.maxDepth) is the size of the world.
             for j in range(pow(2, self.maxDepth)):
                 node = self.locateNode(i+0.1,j+0.1) #because i,j is on vertex, so we increase a bit. e.g. [0,0] represent the place formed by vertex [0,0] [0,1],[1,0],[1,1]
-                node.updateCostLeaf(costMap[i][j]) #see Node.py
-                node.updateMoveCost(moveCostMap[i][j]) #see Node.py
+                if obstacleMap[i][j] == 1:
+                    node.cutLeaf()
+                else:
+                    node.updateCostLeaf(reserveMap[i][j]) #see Node.py
+                    node.updateMoveCost(moveCostMap[i][j]) #see Node.py
+                    ax.add_patch(node.drawSquare())
                 #ax = plt.gca().add_patch(node.drawSquare())
-                ax.add_patch(node.drawSquare())
+                
         plt.axis('scaled') 
         plt.title('cost value map') 
         plt.show() #draw the cost value picture TO DO: add colorbar 

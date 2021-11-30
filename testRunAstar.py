@@ -63,14 +63,15 @@ def search(frontier, explored, targetIndex, NodeList):
 
 ## A star
 time_start=time.time()
-costMap = np.zeros((128,128))
-costMap[5][5] = 1000
-costMap[5][6] = 1000
-costMap[5][7] = 1000
+obstacleMap = np.zeros((128,128))
+obstacleMap[5][5] = 1
+obstacleMap[5][6] = 1
+obstacleMap[5][7] = 1
+reserveMap = np.zeros((128,128))
 moveCostMap = np.zeros((128,128,8)) + 1
-tree = Tree(5, costMap, moveCostMap)
+tree = Tree(7, obstacleMap, reserveMap, moveCostMap)
 #AstarAgent = agent(tree, [2,2],[63,63], 100)
-AstarAgent = agent(tree, [2,2],[31,31])
+AstarAgent = agent(tree, [2,2],[100,100])
 ##
 
 startIndex = AstarAgent.getCurrentNodeIndex() #find the currentNode
@@ -94,9 +95,23 @@ frontier.insert(startnode)
 explored = []
 path, cost= search(frontier, explored, targetIndex, nodeList)
 AstarAgent.setBestPath(path)
-AstarAgent.buildBestGraph()
-
 print(path)
+AstarAgent.buildBestGraph()
+#update costmap
+for mark in path:
+    node = nodeList[mark]
+    vertex = node.getVertex()
+    size = node.getSize()
+    xl = int(vertex[0])
+    yl = int(vertex[1])
+    xh = int(vertex[0] + size)
+    yh = int(vertex[1] + size)
+    for x in range(xl, xh):
+        for y in range(yl, yh):
+            reserveMap[x][y] = 1/(size*size)
+            
+tree = Tree(5, obstacleMap, reserveMap, moveCostMap)
+
 time_end=time.time()
 print('time cost',time_end-time_start,'s')
 

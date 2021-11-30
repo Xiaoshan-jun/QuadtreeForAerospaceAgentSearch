@@ -11,6 +11,7 @@ import numpy as np
 
 
 class agent(object): 
+    
     def __init__(self, tree, position, target, eDistance = 2):
         self.tree = tree 
         self.eDistance = eDistance #defalut 2
@@ -239,5 +240,8 @@ class agent(object):
     
     def setBestPath(self, bestPath):
         self.bestPath = bestPath
+    
+            
+            
 
     

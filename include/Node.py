@@ -15,7 +15,6 @@ class Node(object):
     def __init__(self, maxDepth, depth, vertex, size, parent, position):
         self.maxDepth = maxDepth 
         self.mark = 0 #the index in the nodeList
-        self.reserveOccupy = 0 #expected number of how many airplane will reserve this node
         self.capacity = 1 * pow(4, maxDepth - depth) #max capacity of this node, leaf node's capacity is 1
         self.depth = depth #depth of this node in the tree
         self.depthFromBottom = maxDepth - depth
@@ -38,7 +37,7 @@ class Node(object):
         self.vertex_se = [vertex[0] + size,  vertex[1]] #vertex_se is the position of the bottom right of the vertex
         self.vertex_ne = [vertex[0] + size,  vertex[1] + size] #vertex_ne is the position of the top right of the vertex
         self.size = size #size is the length of the side of square the node represents
-        self.cost = 0 #cost of reach this node
+        self.cost = 0 #cost of reach this node, in this case, cost = number of obastacles and reserve
         self.h = 0# distance to the target
         self.gh = 0 #cost for search
         self.path = [] #path reach the node, for search
@@ -71,10 +70,13 @@ class Node(object):
 #recursive function
 #update the cost of the leaf node, then all the parent node of this leaf node will be updated
     def updateCostLeaf(self, cost):
-        self.cost += cost
+        self.cost = cost
         #parent's cost is equal to sum of its children
         if self.parent != None:
-            self.parent.updateCostLeaf(cost)
+            pcost = 0
+            for child in self.parent.getallChild():
+                pcost += child.getCost()
+            self.parent.updateCostLeaf(pcost)
         return cost
 #recursive function
 #update the moving cost of the leaf node, then all the parent node of this leaf node will be updated
@@ -86,6 +88,21 @@ class Node(object):
             parentCost = (parent.getChild(0).moveCost + parent.getChild(1).moveCost +
             parent.getChild(2).moveCost + parent.getChild(3).moveCost)/4 
             self.parent.updateMoveCost(parentCost)
+    
+    def removeChildren(self, position):
+        self.children[str(position)] = None
+        
+    def hasNoChild(self):
+        children = self.getallChild()
+        for child in children:
+            if child:
+                return False
+        return True
+        
+    def cutLeaf(self):
+        if self.isLeaf or self.hasNoChild():
+            self.parent.removeChildren(self.positionInParentNode)
+            self.parent.cutLeaf()
             
 #get move cost for desired direction. #0: NW, 1:N, 2: NE, 3:W, 4:E, 5:SW 6:S,7:SE
     def getMoveCost(self, i):
@@ -101,7 +118,7 @@ class Node(object):
     def drawSquare(self): 
         my_cmap = cm.get_cmap('Reds')
         min_val = 0
-        max_val = 50
+        max_val = 1
         norm = matplotlib.colors.Normalize(min_val, max_val)
         color_i = my_cmap(norm(self.cost)) 
         square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="red")
@@ -174,6 +191,9 @@ class Node(object):
     #return how many layers under this nodes
     def getDepthFromBottom(self):
         return self.depthFromBottom
+    
+    def getSize(self):
+        return self.size
     #return if this node is openable, may be used in the future
     def openable(self):
         return self.isOpen == False and self.isLeaf == False
