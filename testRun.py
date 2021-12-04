@@ -16,7 +16,7 @@ import numpy as np
 costMap = np.round(np.random.random((32,32))) + 1
 moveCostMap = np.round(np.random.random((32,32,8))) + 1
 tree = Tree(5, costMap, moveCostMap)
-agent = agent(tree, [2,2],[30,30])
+agent = agent(tree, [2,2],[30,30], eDistance = 1)
 #test case2: move agent to specific postion
 agent.move([2,5])
 #test case3: move based on move cost 

@@ -13,9 +13,11 @@ import numpy as np
 
 class Node(object):
     def __init__(self, maxDepth, depth, vertex, size, parent, position):
+        
         self.maxDepth = maxDepth 
         self.mark = 0 #the index in the nodeList
         self.reserved = 0
+        self.maxCapacity = pow(4, maxDepth - depth)
         self.capacity = 1 * pow(4, maxDepth - depth) #max capacity of this node, leaf node's capacity is 1
         self.depth = depth #depth of this node in the tree
         self.depthFromBottom = maxDepth - depth
@@ -40,11 +42,12 @@ class Node(object):
         self.vertex_ne = [vertex[0] + size,  vertex[1] + size] #vertex_ne is the position of the top right of the vertex
         self.size = size #size is the length of the side of square the node represents
         self.cost = 0 #cost of reach this node, in this case, cost = number of obastacles and reserve
-        self.h = 0# distance to the target
+        self.h = 0# distance to the target - capacity
         self.gh = 0 #cost for search
         self.path = [] #path reach the node, for search
         self.avaliable = [] #the avaliable node can arrive from this node
         self.movingCost = [] #the avaliable node can arrive from this node
+        self.importance = False
         
 
 #recursive function
@@ -75,6 +78,7 @@ class Node(object):
             return self.children[str(0)], self.children[str(1)], self.children[str(2)], self.children[str(3)]
 #recursive function
 #update the cost of the leaf node, then all the parent node of this leaf node will be updated
+
     def updateCostLeaf(self, cost):
         self.cost = cost
         #parent's cost is equal to sum of its children
@@ -130,6 +134,9 @@ class Node(object):
 #get move cost for desired direction. #0: NW, 1:N, 2: NE, 3:W, 4:E, 5:SW 6:S,7:SE
     def getMoveCost(self, i):
         return self.moveCost[i]
+    
+    def setMoveCost(self, i, value):
+        self.moveCost[i] = value
         
     #returns child i 
     def getChild(self, i):
@@ -139,13 +146,34 @@ class Node(object):
         return self.children[str(0)], self.children[str(1)], self.children[str(2)], self.children[str(3)]
     #draw the area this node represents on the 2d world with the cost value, different color represent different cost value
     def drawSquare(self): 
-        my_cmap = cm.get_cmap('Reds')
+        my_cmap = cm.get_cmap('Greys')
         min_val = 0
-        max_val = 1
+        max_val = 1000
         norm = matplotlib.colors.Normalize(min_val, max_val)
-        color_i = my_cmap(norm(self.reserved/self.capacity)) 
-        square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="red")
+        color_i = my_cmap(norm(self.cost))
+        square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="gray")
         return square
+    
+    def drawPathSquare(self): 
+        
+        my_cmap = cm.get_cmap('Greys')
+        min_val = 0
+        max_val = 1000
+        norm = matplotlib.colors.Normalize(min_val, max_val)
+        color_i = my_cmap(norm(self.cost))
+        square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="red", lw=3)
+        return square
+    
+    def drawTargetSquare(self): 
+        
+        my_cmap = cm.get_cmap('Greys')
+        min_val = 0
+        max_val = 1000
+        norm = matplotlib.colors.Normalize(min_val, max_val)
+        color_i = my_cmap(norm(self.cost))
+        square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="green", lw=3)
+        return square
+    
     #draw the symbol of the agent if the agent is here
     def drawAgent(self):
         cycle = plt.Circle(self.center,0.35, fc='yellow',ec="red")
@@ -235,3 +263,10 @@ class Node(object):
         
     def setH(self, h):
         self.h = h
+
+    def getCapacityPercentage(self):
+        return self.capacity/self.maxCapacity
+    def CutCapacity(self):
+        self.capacity - 1
+        if self.parent:
+            self.parent.CutCapacity()

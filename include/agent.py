@@ -12,7 +12,7 @@ import numpy as np
 
 class agent(object): 
     
-    def __init__(self, tree, position, target, eDistance = 2):
+    def __init__(self, tree, position, target, eDistance = 3, printb = True):
         self.tree = tree 
         self.eDistance = eDistance #defalut 2
         self.position = position #current position in (x, y)
@@ -26,9 +26,11 @@ class agent(object):
         self.graph = None #[n,n] array save the cost from node1 to node2
         self.bestPath = []
         self.findRequiredNode()
-        self.buildPathGraph()
+        self.buildPathGraph(printb)
         
-        
+    def setTree(self, tree):
+        self.tree = tree
+    
     def findRequiredNode(self):
         print("finding required node for path planing....")
         tree = self.tree
@@ -47,7 +49,7 @@ class agent(object):
                 xd2 = (nc[0] - tc[0])**2
                 yd2 = (nc[1] - tc[1])**2
                 dist2 = np.sqrt(xd2 + yd2)
-                node.setH(dist2)
+                node.setH(dist2* (1.1 - node.getCapacityPercentage()))
                 self.RequiredNode.append(node)
                 #check if the Node is the agent locate
                 ax = ac[0]
@@ -56,13 +58,7 @@ class agent(object):
                 if ax >= xl and ay >= yl and ax < xh and ay < yh:  #(consider agent is in the node if on left/bottom edge)
                     self.currentNode = node
                     self.currentNodeIndex = len(self.RequiredNode) - 1
-                #check if the Node is the agent's target locate
-                tx = tc[0]
-                ty = tc[1]
-                xl, yl, xh, yh = node.getVertex()
-                if tx >= xl and ty >= yl and tx < xh and ty < yh:  #(consider agent is in the node if on left/bottom edge)
-                    self.targetNode = node
-                    self.targetNodeIndex = len(self.RequiredNode) - 1
+
             else:  
                 nc = node.getCenter()
                 xd = (nc[0] - ac[0])**2
@@ -72,17 +68,28 @@ class agent(object):
                 yd2 = (nc[1] - tc[1])**2
                 dist2 = np.sqrt(xd2 + yd2)  #the distance between current node and targets position
                 #check if the Node should be explore, we only explore node is close to the agent and target
-                if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()): 
+                if dist <= self.eDistance**(node.getDepthFromBottom())  :
+                #if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()) :
                     openedNode.extend(node.getallChild())
                 else:
                     node.setMark(len(self.RequiredNode))
                     node.setH(dist2)
                     self.RequiredNode.append(node)
+        #check if the Node is the agent's target locate after requiredNode is created
+        tx = tc[0]
+        ty = tc[1]
+        for index, node in enumerate(self.RequiredNode):
+            xl, yl, xh, yh = node.getVertex()
+            if tx >= xl and ty >= yl and tx < xh and ty < yh:  #(consider agent is in the node if on left/bottom edge)
+                self.targetNode = node
+                self.targetNodeIndex = index
         return self.RequiredNode
     
-    def buildPathGraph(self):
+    def buildPathGraph(self, printb):
         print("building path graph for path planing....")
-        plt = self.drawGraph() #load node map
+        plt = 0
+        if printb:
+            plt = self.drawGraph() #load node map
         Graph = np.zeros((len(self.RequiredNode), len(self.RequiredNode))) + 10000
         for i in range(len(self.RequiredNode)):
             for j in range(len(self.RequiredNode)):
@@ -91,11 +98,12 @@ class agent(object):
                 if self.ifNeibor(node1, node2):
                     x = [node1.getCenter()[0], node2.getCenter()[0]]
                     y = [node1.getCenter()[1], node2.getCenter()[1]]
-                    plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
+                    #if plt:
+                        #plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
                     direction, dist = self.checkRelativePosition(node1, node2)
                     Graph[i][j] = round(dist * node1.getMoveCost(direction))
-                    if dist > 4:
-                        plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
+                    #if dist > 4 and plt:
+                        #plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
         self.pathmap = plt
         #plt.show()
@@ -106,13 +114,14 @@ class agent(object):
         
         plt = self.pathmap #load path map
         
-        for i in range(len(self.bestPath) - 1):
-                node1 = self.RequiredNode[self.bestPath[i]]
-                node2 = self.RequiredNode[self.bestPath[i + 1]]
-                x = [node1.getCenter()[0], node2.getCenter()[0]]
-                y = [node1.getCenter()[1], node2.getCenter()[1]]
-                plt.plot(x, y, 'yo', linewidth=3 , markersize = 0.3, linestyle="--")
-
+        for mark in self.bestPath:
+                node1 = self.RequiredNode[mark]
+                plt.gca().add_patch(node1.drawPathSquare())
+        node = self.RequiredNode[-1]
+        plt.gca().add_patch(node1.drawTargetSquare())
+        #draw target
+        center = [self.target[0] + 2, self.target[1]]
+        plt.gca().add_patch(plt.Circle(center,1.5, fc='green',ec="red"))
         plt.show()
         return None
         
@@ -213,24 +222,17 @@ class agent(object):
         return self.targetNodeIndex
     
     def drawGraph(self):
-        plt.figure(figsize = (32, 32), dpi=100)
+        plt.figure(figsize = (8, 8), dpi=100)
         plt.axes()
         for node in self.RequiredNode:
             plt.gca().add_patch(node.drawSquare())
         plt.gca().add_patch(self.getCurrentNode().drawAgent())
-        plt.gca().add_patch(self.getTargetNode().drawTarget())
+        #plt.gca().add_patch(self.getTargetNode().drawTarget())
         plt.axis('scaled')
-        plt.title('opened node for agent(' +str(self.position[0]) + ',' + str(self.position[1]) + ')' )
+        plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
         graph = plt
         return graph
     
-    #move the agent to desired position, reload the graph
-    def move(self, step):
-        self.position = step
-        self.RequiredNode = []
-        self.graph = None
-        self.findRequiredNode()
-        self.buildPathGraph()
 
     def getGraph(self):
         return self.graph
@@ -251,4 +253,17 @@ class agent(object):
         plt.title('Reserved map') 
         plt.show()
 
-    
+    def move(self,step):
+        current = self.currentNode
+        stepMark = self.bestPath[step]
+        step = self.RequiredNode[stepMark]
+        direction, dist = self.checkRelativePosition(current, step)
+        center = step.getCenter()
+        current.setMoveCost(direction, 100000)
+        self.position = center
+        self.RequiredNode = []
+        self.graph = None
+        self.findRequiredNode()
+        self.buildPathGraph(True)
+        
+        

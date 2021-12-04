@@ -22,7 +22,10 @@ class Tree(object):
     #root node calls the addChild() function, which described in Node.py. All the nodes are created
     def openTree(self):
         print("building tree....")
+        time_start=time.time()
         self.root.addChild()
+        time_end = time.time()
+        print('building tree',time_end-time_start,'s')
     
     #load the cost value of nodes
     #--------------------------------------------
@@ -34,13 +37,15 @@ class Tree(object):
     def loadCost(self, obstacleMap, reserveMap, moveCostMap):
         print("loading cost map....")
         time_start=time.time()
-        plt.figure(figsize = (32, 32), dpi=100)
+        plt.figure(figsize = (self.maxDepth*1.1, self.maxDepth*1.1), dpi=300)
         ax = plt.axes() 
         for i in range(pow(2, self.maxDepth)): #pow(2, self.maxDepth) is the size of the world.
             for j in range(pow(2, self.maxDepth)):
                 node = self.locateNode(i+0.1,j+0.1) #because i,j is on vertex, so we increase a bit. e.g. [0,0] represent the place formed by vertex [0,0] [0,1],[1,0],[1,1]
                 if obstacleMap[i][j] == 1:
-                    node.cutLeaf()
+                    node.updateCostLeaf(1000)
+                    node.updateMoveCost(moveCostMap[i][j])
+                    ax.add_patch(node.drawSquare())
                 else:
                     #node.updateCostLeaf(reserveMap[i][j]) #see Node.py
                     node.updateMoveCost(moveCostMap[i][j]) #see Node.py
@@ -48,10 +53,11 @@ class Tree(object):
                 #ax = plt.gca().add_patch(node.drawSquare())
                 
         plt.axis('scaled') 
-        plt.title('Reserved map') 
+        plt.title('Obestacle map') 
         plt.show() #draw the cost value picture TO DO: add colorbar 
-        time_end=time.time()
-        print('time cost',time_end-time_start,'s')
+        time_end = time.time()
+        print('loading cost map',time_end - time_start,'s')
+
         
                 
     #return root
