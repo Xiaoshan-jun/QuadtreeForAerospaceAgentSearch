@@ -153,7 +153,7 @@ for i in range(100,105):
 reserveMap = np.zeros((1024,1024)) #ignore it
 moveCostMap = np.zeros((1024,1024,8)) + 1 #ignore it
 #create the tree object with Maps
-tree = Tree(6, obstacleMap, reserveMap, moveCostMap) 
+tree = Tree(6, obstacleMap, reserveMap, moveCostMap) #modify here to adjust map size
 #         size of map, 6->2^6 =64, 7->2^7 = 128 etc...
 
 #create agent object
@@ -161,7 +161,7 @@ tree = Tree(6, obstacleMap, reserveMap, moveCostMap)
 #                       start position, target postion, explore distance 
 #---------------------------full map----------------------------------
 time_start=time.time()
-AstarAgent = agent(tree, [2.5,2.5],[60.5,60.5],1000) #open all the node
+AstarAgent = agent(tree, [2.5,2.5],[60.5,60.5],1000) #modify here to change start and end position. open all the node because explore distance is very large
 centerHistory = []
 startIndex = AstarAgent.getCurrentNodeIndex() #find the currentNode
 nodeList = AstarAgent.getRequiredNode() #get the current opened node list
@@ -192,7 +192,7 @@ print('full map Astar',time_end-time_start,'s')
 #---------------------------------------------------------------------------------
 #--------------------------------part tree--------------------------------------
 time_start=time.time()
-AstarAgent = agent(tree, [2.5,2.5],[61.5,61.5],2, printb = True) #change start position, end position, search distance
+AstarAgent = agent(tree, [2.5,2.5],[61.5,61.5],2, printb = True) #modify here to change start and end position. ignore "printb"
 centerHistory = []
 while AstarAgent.getCurrentNodeIndex() != AstarAgent.getTargetNodeIndex():
     center = AstarAgent.position
