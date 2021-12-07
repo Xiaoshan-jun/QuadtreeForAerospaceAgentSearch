@@ -6,9 +6,19 @@ Created on Thu Nov 18 01:24:26 2021
 """
 from include.Tree import Tree
 from include.agent import agent
-from include.obstacle import obstacle
+from include.obstacle import Obstacle
+import matplotlib.pyplot as plt
 import numpy as np
 import time
+textfile = open("record.txt", "w")
+np.random.seed(6)
+def obstacleRatio(obstacle):
+    count = 0
+    for i in range(len(obstacle)):
+        for j in range(len(obstacle[0])):
+            if obstacle[i][j] == 1:
+                count += 1
+    return count/(len(obstacle)**2)
 
 #PriorityQueue for A star search------------------------don't change
 #the node is sorted by lowest gh to highest gh.
@@ -35,25 +45,32 @@ class PriorityQueue:
         return self.queue.pop(0)
 #--------------------------PriorityQueue------------
 
-#----------------------------Astar Search Algorithm-----------don't change
+#----------------------------Astar Search Algorithm start -----------don't change
 def search(frontier, explored, targetIndex, NodeList):
     print('searching the best path...')
     time_start=time.time()
     count = 0
     while True:
+        time_end=time.time()
+        p = time_end-time_start
+        #if p > 10:
+            
+            #print('fail a star',p,'s')
+            #return False, False, time_end-time_start
         if frontier._index == 0:
             time_end=time.time()
             print('fail time cost',time_end-time_start,'s')
-            return False, False
+            return False, False, time_end-time_start
         node = NodeList[frontier.pop()]
         if node.mark == targetIndex:
             time_end=time.time()
             print('Search time cost: ',time_end-time_start,'s')
             path = node.path
-            return path, node.gh
-        #explored.append(node.mark)
+            return path, node.gh, time_end-time_start
+        explored.append(node.mark)
         for mark in node.avaliable:
             child = NodeList[mark]
+            #print(mark)
             if mark not in frontier.queue and mark not in explored :
                 child.gh = node.gh + node.movingCost[node.avaliable.index(mark)] + child.cost + child.h
                 child.path = node.path.copy()
@@ -66,168 +83,204 @@ def search(frontier, explored, targetIndex, NodeList):
                     child.path.append(child.mark)
     time_end=time.time()
     print('Search time cost',time_end-time_start,'s')
-#----------------------------Astar Search Algorithm-----------
+#----------------------------Astar Search Algorithm end-----------
+
+treeLevel = 8 # mapsize = 2^treeLevel * 2^treeLevel
 #----------------------------create obstacle map ------------------------
-obstacleMap = np.zeros((1024,1024))
-for i in range(0,5):
-    for j in range(55,62):
-        obstacleMap[i][j] = 1        
-
-for i in range(0,30):
-    for j in range(50,55):
-        obstacleMap[i][j] = 1
-        
-for j in range(45,55):
-    obstacleMap[50][j] = 1
+obstacle = Obstacle()
+for count in range(350):
+    x = np.random.randint(0, 505)
+    y = np.random.randint(0, 505)
+    width = np.random.randint(2,6)
+    height = np.random.randint(2,6)
+    obstacle.rectangle(x, y, width, height)
+    x = np.random.randint(0, 505)
+    y = np.random.randint(0, 505)
+    width = np.random.randint(2,6)
+    obstacle.triangle(x, y, width)
+    x = np.random.randint(0, 505)
+    y = np.random.randint(20, 505)
+    width = np.random.randint(2,6)
+    obstacle.triangleR(x, y, width)
+    x = np.random.randint(0, 480)
+    y = np.random.randint(0, 480)
+    width = np.random.randint(3,7)
+    height = np.random.randint(3,7)
+    obstacle.Lbuilding(x, y, width, height)
+    x = np.random.randint(0, 505)
+    y = np.random.randint(20, 505)
+    width = np.random.randint(3,7)
+    height = np.random.randint(3,7)
+    obstacle.LbuildingR(x, y, width, height)
+    x = np.random.randint(0, 505)
+    y = np.random.randint(20, 505)
+    width = np.random.randint(3,7)
+    height = np.random.randint(3,7)
+    obstacle.diamond(x, y, width, height)
+    x = np.random.randint(0, 505)
+    y = np.random.randint(0, 505)
+    width = np.random.randint(3,7)
+    height = np.random.randint(3,7)
+    obstacle.diamondR(x, y, width, height)
     
-for j in range(46,54):
-    obstacleMap[49][j] = 1
+obstacleMap = obstacle.getMap()
+x = []
+y = []
+for i in range(512):
+    for j in range(512):
+        if obstacleMap[i][j] == 1:
+            x.append(i)
+            y.append(j)  
+plt.figure(figsize = (8, 8), dpi=300)
+plt.scatter(x, y, marker = 's',s = 1)
+plt.title("obstacle map")
+plt.show()
 
-for j in range(47,53):
-    obstacleMap[48][j] = 1
-    
-for j in range(48,53):
-    obstacleMap[47][j] = 1
-    
-for j in range(45,54):
-    obstacleMap[51][j] = 1
-    
-for j in range(43,55):
-    obstacleMap[52][j] = 1
-
-for j in range(40,55):
-    obstacleMap[53][j] = 1
-
-for j in range(39,55):
-    obstacleMap[54][j] = 1
-
-for j in range(41,52):
-    obstacleMap[55][j] = 1
-
-for j in range(40,50):
-    obstacleMap[56][j] = 1
-        
-for i in range(40, 48):
-    for j in range(30, 30 + i - 39):
-        obstacleMap[i][j] = 1
-
-for i in range(10,128):
-    a = [ 9 ,10, 11, 12, 13, 14, 15]
-    for j in a:
-        obstacleMap[i][j] = 1
-
-for i in range(15,20):
-    for j in range(20,30):
-        obstacleMap[i][j] = 1
-        
-for i in range(35,39):
-    for j in range(35,50):
-        obstacleMap[i][j] = 1
-        
-        
-for i in range(38,52):
-    for j in range(20,24):
-        obstacleMap[i][j] = 1
-
-for i in range(15, 20):
-    for j in range(40 - i + 15 , 40 + i - 15):
-        obstacleMap[i][j] = 1
-    
-obstacleMap[17][42] = 1
-obstacleMap[18][43] = 1
-obstacleMap[17][37] = 1
-obstacleMap[18][36] = 1
-        
-for i in range(20, 25):
-    for j in range(40 + i - 25 , 40 - i + 25):
-        obstacleMap[i][j] = 1
-
-for i in range(0,90):
-    a = [78, 79 ,80, 81]
-    for j in a:
-        obstacleMap[i][j] = 1
-for i in range(100,105):
-    for j in range(90,125):
-        obstacleMap[i][j] = 1
 #----------------------------create obstacle map ------------------------
 reserveMap = np.zeros((1024,1024)) #ignore it
 moveCostMap = np.zeros((1024,1024,8)) + 1 #ignore it
-#create the tree object with Maps
-tree = Tree(6, obstacleMap, reserveMap, moveCostMap) #modify here to adjust map size
-#         size of map, 6->2^6 =64, 7->2^7 = 128 etc...
+fullastartime = []
+fullastarpath = []
+particialastartime = []
+particialastarpath = []
+obstacleRatioList = []
 
-#create agent object
-#AstarAgent = agent(tree, [2.5,2.5],    [61.5,61.5],      2, printb = True)
-#                       start position, target postion, explore distance 
-#---------------------------full map----------------------------------
-time_start=time.time()
-AstarAgent = agent(tree, [2.5,2.5],[60.5,60.5],1000) #modify here to change start and end position. open all the node because explore distance is very large
-centerHistory = []
-startIndex = AstarAgent.getCurrentNodeIndex() #find the currentNode
-nodeList = AstarAgent.getRequiredNode() #get the current opened node list
-graph = AstarAgent.getGraph() #get the graph  
-for i in range(len(graph[0])):
-    possiblePath = graph[i]
-    avaliable = []
-    cost = []
-    for j in range(len(possiblePath)):
-        if possiblePath[j] < 10000:
-            avaliable.append(j)
-            cost.append(possiblePath[j])
-    nodeList[i].setAvaliable(avaliable)
-    nodeList[i].setMovingCost(cost)
-targetIndex = AstarAgent.getTargetNodeIndex()
-frontier = PriorityQueue(nodeList)
-startnode = nodeList[startIndex]
-startnode.path = [startnode.mark]
-frontier.insert(startnode)
-explored = []
-path, cost= search(frontier, explored, targetIndex, nodeList)
-AstarAgent.setBestPath(path)
-AstarAgent.buildBestGraph()
-print(path)
-print('total step of the path:' , len(path))
-time_end = time.time()
-print('full map Astar',time_end-time_start,'s')
-#---------------------------------------------------------------------------------
-#--------------------------------part tree--------------------------------------
-time_start=time.time()
-AstarAgent = agent(tree, [2.5,2.5],[61.5,61.5],2, printb = True) #modify here to change start and end position. ignore "printb"
-centerHistory = []
-while AstarAgent.getCurrentNodeIndex() != AstarAgent.getTargetNodeIndex():
-    center = AstarAgent.position
-    centerHistory.append(center)
-    startIndex = AstarAgent.getCurrentNodeIndex() #find the currentNode
-    nodeList = AstarAgent.getRequiredNode() #get the current opened node list
-    graph = AstarAgent.getGraph() #get the graph  
+for i in range(10):
+    #create the tree object with Maps
+    #cut obstacle map
+    ratio = 1
+    while ratio > 0.7 or ratio < 0.2:
+        x = np.random.randint(0, 512 - 2**treeLevel)
+        y = np.random.randint(0, 512 - 2**treeLevel)
+        selectedobstacleMap = obstacleMap[x : x + 2**treeLevel][: , y : y + 2**treeLevel]
+        ratio = obstacleRatio(selectedobstacleMap)
+    tree = Tree(treeLevel, selectedobstacleMap, reserveMap, moveCostMap) #modify here to adjust map size
+    #         size of map, 6->2^6 =64, 7->2^7 = 128 etc...
+    obstacleRatioList.append(ratio)
+    for element in obstacleRatioList:
+        textfile.write(element + "\t")
+    textfile.write("\n")
+    #create agent object
+    #AstarAgent = agent(tree, [2.5,2.5],    [61.5,61.5],      2, printb = True)
+    dist = 0
+    bad = True
+    while dist < 2**treeLevel or bad:
+        startx = np.random.randint(0, 2**treeLevel)
+        starty = np.random.randint(0, 2**treeLevel)
+        destinationx = np.random.randint(0, 2**treeLevel)
+        destinationy = np.random.randint(0, 2**treeLevel)
+        xd = (startx - destinationx)**2
+        yd = (starty - destinationy)**2
+        dist = np.sqrt(xd + yd)
+        bad = False
+        if selectedobstacleMap[startx][starty] == 1 or selectedobstacleMap[destinationx][destinationy] == 1:
+            bad = True
+            
+    
+    startPosition = [startx, starty]
+    destination = [destinationx + 0.5 , destinationy + 0.5]
+    time_start = time.time()
+    AstarAgentf = agent(tree, startPosition,destination,eDistance  = 100, printb = True) 
+    #                       start position, target postion, explore distance 
+    #---------------------------full map----------------------------------
+    #AstarAgentf = agent(tree, [2.5,2.5],[60.5,60.5],1) #modify here to change start and end position. open all the node because explore distance is very large
+    centerHistory = []
+    startIndex = AstarAgentf.getCurrentNodeIndex() #find the currentNode
+    nodeList = AstarAgentf.getRequiredNode() #get the current opened node list
+    graph = AstarAgentf.getGraph() #get the graph  
     for i in range(len(graph[0])):
         possiblePath = graph[i]
         avaliable = []
         cost = []
         for j in range(len(possiblePath)):
-            if possiblePath[j] < 10000:
+            if possiblePath[j] < 100000:
                 avaliable.append(j)
                 cost.append(possiblePath[j])
         nodeList[i].setAvaliable(avaliable)
-        nodeList[i].setMovingCost(cost)
-    targetIndex = AstarAgent.getTargetNodeIndex()
+        nodeList[i].setMovingCost(cost)# time_accumlation = 0
+    
+    targetIndex = AstarAgentf.getTargetNodeIndex()
     frontier = PriorityQueue(nodeList)
     startnode = nodeList[startIndex]
     startnode.path = [startnode.mark]
     frontier.insert(startnode)
     explored = []
-    path, cost= search(frontier, explored, targetIndex, nodeList)
-    AstarAgent.setBestPath(path)
-    AstarAgent.buildBestGraph()
+    path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
+    AstarAgentf.setBestPath(path)
+    time_end = time.time()
+    timep = time_end - time_start
+    AstarAgentf.buildBestGraph()
     print(path)
-    AstarAgent.move(1)
-time_end = time.time()
-print('partial map Astar',time_end-time_start,'s')
-AstarAgent.buildBestGraph()
-print(centerHistory)
-print('total step of the path:' , len(centerHistory))
-#--------------------------------part tree--------------------------------------
-
+    print('total step of the path:' , len(path))
+    print('full map Astar: ',timep,'s')
+    fullastartime.append(timep)
+    for element in fullastartime:
+        textfile.write(element + "\t")
+    textfile.write("\n")
+    fullastarpath.append(len(path))
+    for element in fullastarpath:
+        textfile.write(element + "\t")
+    textfile.write("\n")
+    #---------------------------------------------------------------------------------
+    #--------------------------------partial tree--------------------------------------
+    AstarAgentf = None
+    #tree = Tree(treeLevel, selectedobstacleMap, reserveMap, moveCostMap) 
+    time_start = time.time()
+    AstarAgentp = agent(tree, startPosition,destination,eDistance  = 1, printb = True) 
+    time_accumlation = time_end - time_start
+    centerHistory = []
+    while AstarAgentp.getCurrentNodeIndex() != AstarAgentp.getTargetNodeIndex():
+        time_start = time.time()
+        center = AstarAgentp.position
+        centerHistory.append(center)
+        startIndex = AstarAgentp.getCurrentNodeIndex() #find the currentNode
+        nodeList = AstarAgentp.getRequiredNode() #get the current opened node list
+        graph = AstarAgentp.getGraph() #get the graph  
+        for i in range(len(graph[0])):
+            possiblePath = graph[i]
+            avaliable = []
+            cost = []
+            for j in range(len(possiblePath)):
+                if possiblePath[j] < 100000:
+                    avaliable.append(j)
+                    cost.append(possiblePath[j])
+            nodeList[i].setAvaliable(avaliable)
+            nodeList[i].setMovingCost(cost)
+        targetIndex = AstarAgentp.getTargetNodeIndex()
+        frontier = PriorityQueue(nodeList)
+        startnode = nodeList[startIndex]
+        startnode.path = [startnode.mark]
+        frontier.insert(startnode)
+        explored = []
+        path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
+        if path:
+    
+            AstarAgentp.setBestPath(path)
+            
+            AstarAgentp.buildBestGraph()
+            
+            
+            AstarAgentp.move(1)
+            time_end = time.time()
+            timep = time_end - time_start
+            time_accumlation += timep
+            print(path)
+        else:
+            break
+    print('partial map Astar:',time_accumlation, 's')
+    #AstarAgent.buildBestGraph()
+    print(centerHistory)
+    print('total step of the path:' , len(centerHistory))
+    particialastartime.append(time_accumlation)
+    for element in particialastartime:
+        textfile.write(element + "\t")
+    textfile.write("\n")
+    particialastarpath.append(len(centerHistory))
+    for element in particialastarpath:
+        textfile.write(element + "\t")
+    textfile.write("\n")
+    #--------------------------------part tree--------------------------------------
+textfile.close()
 
 
 

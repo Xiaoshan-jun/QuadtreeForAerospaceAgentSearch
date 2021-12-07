@@ -191,7 +191,7 @@ class Node(object):
         if self.isLeaf:
             self.eOccupy += eOccupy
         else:
-        #find avaliable child nodes, return False if no avaliable child nodes
+        #find avaliable child nodes, return FalsestartIndex if no avaliable child nodes
             acn1 = 0 #real acn
             acn2 = 4 #predicted acn
             #check how many node has 1/4 space first, if not every node has space, check how many node has 1/acn1

@@ -53,7 +53,7 @@ class Tree(object):
                 #ax = plt.gca().add_patch(node.drawSquare())
                 
         plt.axis('scaled') 
-        plt.title('Obestacle map') 
+        plt.title('Obstacle map') 
         plt.show() #draw the cost value picture TO DO: add colorbar 
         time_end = time.time()
         print('loading cost map',time_end - time_start,'s')

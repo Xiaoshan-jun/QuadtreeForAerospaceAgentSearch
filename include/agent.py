@@ -12,9 +12,9 @@ import numpy as np
 
 class agent(object): 
     
-    def __init__(self, tree, position, target, eDistance = 3, printb = True):
+    def __init__(self, tree, position, target, eDistance = 2, printb = True):
         self.tree = tree 
-        self.eDistance = eDistance #defalut 2
+        self.eDistance = eDistance #defalut 2 (alpha in paper)
         self.position = position #current position in (x, y)
         self.currentNode = None #current node where the agent locate
         self.currentNodeIndex = 0  #the index currentNode in RequiredNode. RequiredNode[currentNodeIndex] == currentNode
@@ -64,15 +64,15 @@ class agent(object):
                 xd = (nc[0] - ac[0])**2
                 yd = (nc[1] - ac[1])**2
                 dist = np.sqrt(xd + yd) #the distance between current node and agent position
-                xd2 = (nc[0] - tc[0])**2
-                yd2 = (nc[1] - tc[1])**2
-                dist2 = np.sqrt(xd2 + yd2)  #the distance between current node and targets position
                 #check if the Node should be explore, we only explore node is close to the agent and target
-                if dist <= self.eDistance**(node.getDepthFromBottom())  :
+                if dist <= (self.eDistance * (2**(node.getDepthFromBottom())))  :
                 #if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()) :
                     openedNode.extend(node.getallChild())
                 else:
                     node.setMark(len(self.RequiredNode))
+                    xd2 = (nc[0] - tc[0])**2
+                    yd2 = (nc[1] - tc[1])**2
+                    dist2 = np.sqrt(xd2 + yd2)  #the distance between current node and targets position
                     node.setH(dist2)
                     self.RequiredNode.append(node)
         #check if the Node is the agent's target locate after requiredNode is created
@@ -87,10 +87,10 @@ class agent(object):
     
     def buildPathGraph(self, printb):
         print("building path graph for path planing....")
-        plt = 0
-        if printb:
-            plt = self.drawGraph() #load node map
-        Graph = np.zeros((len(self.RequiredNode), len(self.RequiredNode))) + 10000
+        #plt = 0
+        #if printb:
+            #plt = self.drawGraph() #load node map
+        Graph = np.zeros((len(self.RequiredNode), len(self.RequiredNode))) + 100000
         for i in range(len(self.RequiredNode)):
             for j in range(len(self.RequiredNode)):
                 node1 = self.RequiredNode[i]
@@ -105,24 +105,24 @@ class agent(object):
                     #if dist > 4 and plt:
                         #plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
-        self.pathmap = plt
+        #self.pathmap = plt
         #plt.show()
         return self.graph
     
     def buildBestGraph(self):
         print("building best path graph for path planing....")
         
-        plt = self.pathmap #load path map
+        #plt = self.pathmap #load path map
         
         for mark in self.bestPath:
                 node1 = self.RequiredNode[mark]
-                plt.gca().add_patch(node1.drawPathSquare())
-        node = self.RequiredNode[-1]
-        plt.gca().add_patch(node1.drawTargetSquare())
+                #plt.gca().add_patch(node1.drawPathSquare())
+        node = self.RequiredNode[self.bestPath[-1]]
+        #plt.gca().add_patch(node.drawTargetSquare())
         #draw target
-        center = [self.target[0] + 2, self.target[1]]
-        plt.gca().add_patch(plt.Circle(center,1.5, fc='green',ec="red"))
-        plt.show()
+        #center = [self.target[0] + 2, self.target[1]]
+        #plt.gca().add_patch(plt.Circle(center,1.5, fc='green',ec="red"))
+        #plt.show()
         return None
         
                 
@@ -259,7 +259,7 @@ class agent(object):
         step = self.RequiredNode[stepMark]
         direction, dist = self.checkRelativePosition(current, step)
         center = step.getCenter()
-        current.setMoveCost(direction, 100000)
+        current.setMoveCost(direction, 10000)
         self.position = center
         self.RequiredNode = []
         self.graph = None
