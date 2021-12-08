@@ -136,7 +136,7 @@ class Node(object):
         return self.moveCost[i]
     
     def setMoveCost(self, i, value):
-        self.moveCost[i] = value
+        self.moveCost[i] += value
         
     #returns child i 
     def getChild(self, i):

@@ -18,6 +18,8 @@ class Tree(object):
         self.maxDepth = maxDepth #max depth of the tree
         self.openTree() #create all the quadnodes in this world
         self.loadCost(obstacleMap, reserveMap ,moveCostMap) #save all the cost values into the node
+        self.dynamicx = []
+        self.dynamicy = []
         
     #root node calls the addChild() function, which described in Node.py. All the nodes are created
     def openTree(self):
@@ -37,7 +39,7 @@ class Tree(object):
     def loadCost(self, obstacleMap, reserveMap, moveCostMap):
         print("loading cost map....")
         time_start=time.time()
-        plt.figure(figsize = (self.maxDepth*1.1, self.maxDepth*1.1), dpi=300)
+        plt.figure(figsize = (self.maxDepth*1.1, self.maxDepth*1.1), dpi=500)
         ax = plt.axes() 
         for i in range(pow(2, self.maxDepth)): #pow(2, self.maxDepth) is the size of the world.
             for j in range(pow(2, self.maxDepth)):
@@ -58,9 +60,31 @@ class Tree(object):
         time_end = time.time()
         print('loading cost map',time_end - time_start,'s')
 
+    def dynamicObstacle(self):
+        for i in range(pow(2, self.maxDepth + 1)):
+            
+            x = np.random.randint(0, pow(2, self.maxDepth) )
+            y = np.random.randint(0, pow(2, self.maxDepth) )
+            node = self.locateNode(x + 0.1, y + 0.1) 
+            if node.getCost() == 0:
+                node.updateCostLeaf(500)
+                self.dynamicx.append(x)
+                self.dynamicy.append(y)
+            else:
+                i = i - 1
+            
+            
         
+        
+    def dynamicObstacleClear(self):
+        for i in range(len(self.dynamicx)):
+            x = self.dynamicx[i]
+            y = self.dynamicy[i]
+            node = self.locateNode(x+0.1,y+0.1) 
+            node.updateCostLeaf(0)
+        self.dynamicx = []
+        self.dynamicy = []
                 
-    #return root
     def getRoot(self):
         return self.root
         

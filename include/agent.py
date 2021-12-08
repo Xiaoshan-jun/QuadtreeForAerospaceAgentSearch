@@ -90,8 +90,10 @@ class agent(object):
         #plt = 0
         #if printb:
             #plt = self.drawGraph() #load node map
-        Graph = np.zeros((len(self.RequiredNode), len(self.RequiredNode))) + 100000
+        
+        Graph = {}
         for i in range(len(self.RequiredNode)):
+            Graph[i] = {}
             for j in range(len(self.RequiredNode)):
                 node1 = self.RequiredNode[i]
                 node2 = self.RequiredNode[j]
@@ -101,7 +103,8 @@ class agent(object):
                     #if plt:
                         #plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
                     direction, dist = self.checkRelativePosition(node1, node2)
-                    Graph[i][j] = round(dist * node1.getMoveCost(direction))
+                    Graph[i][j] = round(dist * node1.getMoveCost(direction),1)
+                    
                     #if dist > 4 and plt:
                         #plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
@@ -112,19 +115,28 @@ class agent(object):
     def buildBestGraph(self):
         print("building best path graph for path planing....")
         
-        #plt = self.pathmap #load path map
+        plt = self.pathmap #load path map
         
         for mark in self.bestPath:
                 node1 = self.RequiredNode[mark]
-                #plt.gca().add_patch(node1.drawPathSquare())
+                plt.gca().add_patch(node1.drawPathSquare())
         node = self.RequiredNode[self.bestPath[-1]]
-        #plt.gca().add_patch(node.drawTargetSquare())
+        plt.gca().add_patch(node.drawTargetSquare())
         #draw target
-        #center = [self.target[0] + 2, self.target[1]]
-        #plt.gca().add_patch(plt.Circle(center,1.5, fc='green',ec="red"))
-        #plt.show()
+        plt.show()
         return None
-        
+    
+    def drawGraph(self):
+        plt.figure(figsize = (8, 8), dpi=100)
+        plt.axes()
+        for node in self.RequiredNode:
+            plt.gca().add_patch(node.drawSquare())
+        plt.gca().add_patch(self.getCurrentNode().drawAgent())
+        #plt.gca().add_patch(self.getTargetNode().drawTarget())
+        plt.axis('scaled')
+        plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
+        graph = plt
+        return graph
                 
     #check if two nodes are neibor by check if they share vertex
     def ifNeibor(self, node1, node2):
@@ -221,17 +233,6 @@ class agent(object):
     def getTargetNodeIndex(self):
         return self.targetNodeIndex
     
-    def drawGraph(self):
-        plt.figure(figsize = (8, 8), dpi=100)
-        plt.axes()
-        for node in self.RequiredNode:
-            plt.gca().add_patch(node.drawSquare())
-        plt.gca().add_patch(self.getCurrentNode().drawAgent())
-        #plt.gca().add_patch(self.getTargetNode().drawTarget())
-        plt.axis('scaled')
-        plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
-        graph = plt
-        return graph
     
 
     def getGraph(self):
