@@ -80,7 +80,7 @@ def search(frontier, explored, targetIndex, NodeList): #code freeze
     print('Search time cost',time_end-time_start,'s')
 #----------------------------Astar Search Algorithm end-----------
 
-treeLevel = 8 # mapsize = 2^treeLevel * 2^treeLevel
+treeLevel = 5 # mapsize = 2^treeLevel * 2^treeLevel
 #----------------------------create obstacle map ------------------------
 obstacle = Obstacle()
 for count in range(200 + treeLevel*25):
@@ -140,7 +140,7 @@ particialastartime = []
 particialastarpath = []
 obstacleRatioList = []
 
-for i in range(10):
+for i in range(1):
         
     #create the tree object with Maps
     #cut obstacle map
@@ -223,6 +223,9 @@ for i in range(10):
     # time_accumlation = time_end - time_start
     # centerHistory = []
     # while AstarAgentp.getCurrentNodeIndex() != AstarAgentp.getTargetNodeIndex():
+    #     if len(centerHistory) > 2000:
+    #         i = i - 1
+    #         break
     #     time_start = time.time()
     #     center = AstarAgentp.position
     #     centerHistory.append(center)
@@ -249,7 +252,7 @@ for i in range(10):
     
     #         AstarAgentp.setBestPath(path)
             
-    #         AstarAgentp.buildBestGraph()
+    #         #AstarAgentp.buildBestGraph()
             
             
     #         AstarAgentp.move(1)
@@ -264,11 +267,12 @@ for i in range(10):
     # print(centerHistory)
     # print('total step of the path:' , len(centerHistory))
     # particialastartime.append(time_accumlation)
+    # particialastarpath.append(len(centerHistory))
     #--------------------------------part tree dynamic--------------------------------------
 
     tree = Tree(treeLevel, selectedobstacleMap, reserveMap, moveCostMap) 
     time_start = time.time()
-    AstarAgentp = agent(tree, startPosition,destination,eDistance  = 1, printb = True) 
+    AstarAgentp = agent(tree, startPosition,destination,eDistance  = 100, printb = True) 
     time_end = time.time()
     time_accumlation = time_end - time_start
     centerHistory = []
@@ -307,7 +311,7 @@ for i in range(10):
             AstarAgentp.move(1)
             time_end = time.time()
             timep = time_end - time_start
-            #AstarAgentp.buildBestGraph()
+            AstarAgentp.buildBestGraph()
             time_accumlation += timep            
             
 
@@ -317,7 +321,7 @@ for i in range(10):
         else:
             break
     print('partial map Astar:',time_accumlation, 's')
-    #AstarAgent.buildBestGraph()
+    AstarAgentp.buildBestGraph()
     print(centerHistory)
     print('total step of the path:' , len(centerHistory))
     particialastartime.append(time_accumlation)

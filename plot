@@ -34,9 +34,9 @@ f3p = [277, 155, 133, 232, 211, 202, 199, 181, 205, 204]
 f3t = [446.2133777141571, 441.8189206123352, 473.68740606307983, 483.6280162334442, 454.2612884044647, 460.1761975288391, 448.66426634788513, 485.7115409374237, 477.60661363601685, 485.59860491752625]
 obstacleL3 = [] 
 #treelevel 8
-p4p = [625 ]
-p4t = [7.887837886810303]
-f4p = [315, 470, 326]
+p4p = [625, 1016, 1952, 402, 861, 552, 544, 462] 
+p4t = [7.815662145614624, 11.719524621963501, 20.47360897064209, 3.969024181365967, 8.046585083007812, 6.254885673522949, 5.25531268119812, 4.7390220165252686]
+f4p = [315, 256, 326, 200, 229]
 f4t = [4514.379614830017, 3623.6623294353485, 2938.002320289612]
 #-------------------------------------dynamic-------------------------------------------------
 #treelevel 4 freezing
@@ -55,7 +55,19 @@ dp3t = [1.2553443908691406, 1.004392385482788, 6.338201284408569, 4.075299263000
 dp4p = [824, 594, 647, 504, 582,  269, 538]
 dp4t = [10.139769077301025, 6.533010482788086, 6.741077423095703, 5.50275444984436, 5.778815507888794,  2.5337984561920166, 5.613806486129761]
 
-
+#-------------------------------------static with bigger alpha--------------------
+#1.5
+a1p = [300, 323, 1139, 351, 324, 390, 434, 283]
+a1t = [12.11871600151062, 12.673563957214355, 46.79919, 13.087165594100952, 12.583893775939941, 13.57600998878479, 16.895854473114014, 11.063145637512207]
+#2
+a2p = [269, 312, 268, 275, 308, 349, 1731, 251, 296, 367]
+a2t = [26.994545221328735, 31.801839351654053, 25.66297197341919, 27.795238256454468, 28.53405261039734, 32.52399945259094, 178.69374990463257, 24.77287197113037, 28.379735469818115, 36.79453468322754]
+#2.5
+a3p = [278, 309, 232, 276, 286, 300, 346, 320, 587, 301]
+a3t = [55.90070056915283, 63.31396436691284, 47.67027974128723, 52.650004148483276, 58.492074728012085, 60.74628400802612, 64.2811267375946, 62.56674933433533, 126.67719316482544, 60.76482081413269]
+#3
+a4p = [248, 293, 229, 276, 288, 264, 305, 300, 231, 253]
+a4t = [91.4129683971405, 108.17559790611267, 84.63279628753662, 94.49937033653259, 107.67723059654236, 95.8847246170044, 111.95921468734741, 103.14242148399353, 83.87120079994202, 92.90192747116089]
 
 #--------------------------------------------plot static distance
 # mean_value = []
@@ -147,11 +159,11 @@ dp4t = [10.139769077301025, 6.533010482788086, 6.741077423095703, 5.502754449844
 #                 alpha=.1)
 # ax.fill_between(np.arange(0, 5), conf_interval_low2, conf_interval_high2,
 #                 alpha=.1)
-
+# plt.gcf().set_dpi(300)
 # # Adding grid
 # plt.grid()
 # # Axis Descriptors
-# ax.set_ylabel('Travel Distance(steps)')
+# ax.set_ylabel('Travel Distance(step)')
 # ax.set_xlabel('Map Size')
 # str_list = ['16x16', '32x32','64x64', '128x128', '256x256']
 # ax.set_xticks(range(0,5))
@@ -164,7 +176,6 @@ dp4t = [10.139769077301025, 6.533010482788086, 6.741077423095703, 5.502754449844
 # leg.get_frame().set_alpha(.9)
 # fig.tight_layout()
 #---------------------------plot time-----------------------------------------------
-
 # mean_value = []
 # mean_value_column = np.mean(p0t)
 # mean_value.append(mean_value_column)
@@ -176,6 +187,7 @@ dp4t = [10.139769077301025, 6.533010482788086, 6.741077423095703, 5.502754449844
 # mean_value.append(mean_value_column)
 # mean_value_column = np.mean(p4t)
 # mean_value.append(mean_value_column)
+
 # std_deviation = []
 # std_deviation_column = np.std(p0t)
 # std_deviation.append(std_deviation_column)
@@ -254,7 +266,7 @@ dp4t = [10.139769077301025, 6.533010482788086, 6.741077423095703, 5.502754449844
 #                 alpha=.1)
 # ax.fill_between(np.arange(0, 5), conf_interval_low2, conf_interval_high2,
 #                 alpha=.1)
-
+# plt.gcf().set_dpi(300)
 # # Adding grid
 # plt.grid()
 # # Axis Descriptors
@@ -270,7 +282,195 @@ dp4t = [10.139769077301025, 6.533010482788086, 6.741077423095703, 5.502754449844
 
 # leg.get_frame().set_alpha(.9)
 # fig.tight_layout()
+# std_deviation_column = np.std(p3t)
+# std_deviation.append(std_deviation_column)
+# std_deviation_column = np.std(p4t)
+# std_deviation.append(std_deviation_column)
+
+# # Calculates the 95% confidence interval value
+# conf_interval = np.sort(np.abs(np.random.normal(mean_value, std_deviation, 5 - 0)))
+# # Calculates the upper bound of the 95% confidence interval
+# conf_interval_high = mean_value + conf_interval
+# # Calculates the lower bound of the 95% confidence interval
+# conf_interval_low = mean_value - conf_interval
+
+
+# # Calculates the 95% confidence interval value
+# conf_interval2 = np.sort(np.abs(np.random.normal(mean_value2, std_deviation2, 5 - 0)))
+# # Calculates the upper bound of the 95% confidence interval
+# conf_interval_high2 = mean_value2 + conf_interval2
+# # Calculates the lower bound of the 95% confidence interval
+# conf_interval_low2 = mean_value2 - conf_interval2
+
+
+# # Sets any on the negative, lower bound values equal to zero
+# # Cannot have a negative uncertainty
+# for i in range(len(conf_interval_low)):
+#     if conf_interval_low[i] < 0:
+#         conf_interval_low[i] = 0
+    
+# for i in range(len(conf_interval_low2)):
+#     if conf_interval_low2[i] < 0:
+#         conf_interval_low2[i] = 0
+
+# # Defines figure and axes
+# fig, ax = plt.subplots()
+
+# # Plots the number of agents (x-axis) against the mean value (y-axis) as points connected by a line
+# ax.plot(np.arange(0, 5), mean_value, 'o-')
+# ax.plot(np.arange(0, 5), mean_value2, 'o-')
+# for i, v in enumerate(mean_value):
+#     ax.text(i, v+100, "%d.2" %v, ha = "center", c = 'b')
+    
+# for i, v in enumerate(mean_value2):
+#     ax.text(i, v+500, "%d.2" %v, ha = "center", c = 'orange')
+
+# # Plots the 95% confidence interval
+# ax.fill_between(np.arange(0, 5), conf_interval_low, conf_interval_high,
+#                 alpha=.1)
+# ax.fill_between(np.arange(0, 5), conf_interval_low2, conf_interval_high2,
+#                 alpha=.1)
+
+# # Adding grid
+# plt.grid()
+# # Axis Descriptors
+# ax.set_ylabel('Total Runtime(s)')
+# ax.set_xlabel('Map Size')
+# str_list = ['16x16', '32x32','64x64', '128x128', '256x256']
+# ax.set_xticks(range(0,5))
+# ax.set_xticklabels(str_list)
+# ax.set_title('Total Runtime vs. Map size(static)')
+# # Legend
+
+# leg = plt.legend(['MSA', 'A*'], loc='upper left')
+
+# leg.get_frame().set_alpha(.9)
+# plt.show()
+#---------------------------------------plot vary search distance----time
+
+# tmean_value = []
+# tmean_value_column = np.mean(p4t)
+# tmean_value.append(tmean_value_column)
+# tmean_value_column = np.mean(a1t)
+# tmean_value.append(tmean_value_column)
+# tmean_value_column = np.mean(a2t)
+# tmean_value.append(tmean_value_column)
+# tmean_value_column = np.mean(a3t)
+# tmean_value.append(tmean_value_column)
+# tmean_value_column = np.mean(a4t)
+# tmean_value.append(tmean_value_column)
+# tstd_deviation = []
+# tstd_deviation_column = np.std(p4t)
+# tstd_deviation.append(tstd_deviation_column)
+# tstd_deviation_column = np.std(a1t)
+# tstd_deviation.append(tstd_deviation_column)
+# tstd_deviation_column = np.std(a2t)
+# tstd_deviation.append(tstd_deviation_column)
+# tstd_deviation_column = np.std(a3t)
+# tstd_deviation.append(tstd_deviation_column)
+# tstd_deviation_column = np.std(a4t)
+# tstd_deviation.append(tstd_deviation_column)
+
+# # Calculates the 95% confidence interval value
+# tconf_interval = np.abs(np.random.normal(tmean_value, tstd_deviation, 5 - 0))
+# # Calculates the upper bound of the 95% confidence interval
+# tconf_interval_high = tmean_value + tconf_interval
+# # Calculates the lower bound of the 95% confidence interval
+# tconf_interval_low = tmean_value - tconf_interval
+
+# #distance
+# dmean_value2 = []
+# dmean_value_column2 = np.mean(p4p)
+# dmean_value2.append(dmean_value_column2)
+# dmean_value_column2 = np.mean(a1p)
+# dmean_value2.append(dmean_value_column2)
+# dmean_value_column2 = np.mean(a2p)
+# dmean_value2.append(dmean_value_column2)
+# dmean_value_column2 = np.mean(a3p)
+# dmean_value2.append(dmean_value_column2)
+# dmean_value_column2 = np.mean(a4p)
+# dmean_value2.append(dmean_value_column2)
+# dstd_deviation2 = []
+# dstd_deviation_column2 = np.std(p4p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a1p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a2p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a3p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a4p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation2 = []
+# dstd_deviation_column2 = np.std(p4p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a1p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a2p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a3p)
+# dstd_deviation2.append(dstd_deviation_column2)
+# dstd_deviation_column2 = np.std(a4p)
+# dstd_deviation2.append(dstd_deviation_column2) 
+
+# # Calculates the 95% confidence interval value
+# dconf_interval2 = np.abs(np.random.normal(dmean_value2, dstd_deviation2, 5 - 0))
+# # Calculates the upper bound of the 95% confidence interval
+# dconf_interval_high2 = dmean_value2 + dconf_interval2
+# # Calculates the lower bound of the 95% confidence interval
+# dconf_interval_low2 = dmean_value2 - dconf_interval2
+
+
+# # Sets any on the negative, lower bound values equal to zero
+# # Cannot have a negative uncertainty
+# for i in range(len(tconf_interval_low)):
+#     if tconf_interval_low[i] < 0:
+#         tconf_interval_low[i] = 0
+    
+# for i in range(len(dconf_interval_low2)):
+#     if dconf_interval_low2[i] < 0:
+#         dconf_interval_low2[i] = 0
+
+# # Defines figure and axes
+# fig, ax = plt.subplots()
+# plt.gcf().set_dpi(300)
+# ax2 = ax.twinx()
+# # Plots the number of agents (x-axis) against the mean value (y-axis) as points connected by a line
+# line1, = ax.plot(np.arange(0, 5), tmean_value, 'o-', label = 'time')
+# line2, = ax2.plot(np.arange(0, 5), dmean_value2, 'o-', c = 'orange', label = 'travel distance')
+# for i, v in enumerate(tmean_value):
+#     ax.text(i, v + 10, "%d.2" %v, ha = "center", c = 'b')
+    
+# for i, v in enumerate(dmean_value2):
+#     ax2.text(i, v + 150, "%d.2" %v, ha = "center", c = 'orange')
+
+# # Plots the 95% confidence interval
+# ax.fill_between(np.arange(0, 5), tconf_interval_low, tconf_interval_high,
+#                 alpha=.1)
+# ax2.fill_between(np.arange(0, 5), dconf_interval_low2, dconf_interval_high2,
+#                 alpha=.1, color = 'orange')
+
+# ax2.set_ylabel("Travel Distance(step)")
+
+# # Adding grid
+# plt.grid()
+# # Axis Descriptors
+# ax.set_ylabel('Total Runtime(s)')
+# ax.set_xlabel('Alpha')
+# str_list = ['1', '1.5','2', '2.5', '3']
+# ax.set_xticks(range(0,5))
+# ax.set_xticklabels(str_list)
+# ax.set_title('Performance vs. Alpha(map size = 256x256)')
+# # Legend
+
+# leg = plt.legend([line1, line2],['time', 'travel distance'],loc='upper right')
+
+# leg.get_frame().set_alpha(.9)
+# plt.show()
+
 #--------------------------------------------plot dynamic distance
+
+
 mean_value = []
 mean_value_column = np.mean(p0p)
 mean_value.append(mean_value_column)
@@ -345,7 +545,7 @@ for i in range(len(conf_interval_low2)):
 
 # Defines figure and axes
 fig, ax = plt.subplots()
-
+plt.gcf().set_dpi(300)
 # Plots the number of agents (x-axis) against the mean value (y-axis) as points connected by a line
 ax.plot(np.arange(0, 5), mean_value, 'o-')
 ax.plot(np.arange(0, 5), mean_value2, 'o-')
@@ -364,7 +564,7 @@ ax.fill_between(np.arange(0, 5), conf_interval_low2, conf_interval_high2,
 # Adding grid
 plt.grid()
 # Axis Descriptors
-ax.set_ylabel('Travel Distance(steps)')
+ax.set_ylabel('Travel Distance(step)')
 ax.set_xlabel('Map Size')
 str_list = ['16x16', '32x32','64x64', '128x128', '256x256']
 ax.set_xticks(range(0,5))

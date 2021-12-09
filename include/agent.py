@@ -88,8 +88,8 @@ class agent(object):
     def buildPathGraph(self, printb):
         print("building path graph for path planing....")
         #plt = 0
-        #if printb:
-            #plt = self.drawGraph() #load node map
+        if printb:
+            plt = self.drawGraph() #load node map
         
         Graph = {}
         for i in range(len(self.RequiredNode)):
@@ -98,8 +98,8 @@ class agent(object):
                 node1 = self.RequiredNode[i]
                 node2 = self.RequiredNode[j]
                 if self.ifNeibor(node1, node2):
-                    x = [node1.getCenter()[0], node2.getCenter()[0]]
-                    y = [node1.getCenter()[1], node2.getCenter()[1]]
+                    #x = [node1.getCenter()[0], node2.getCenter()[0]]
+                    #y = [node1.getCenter()[1], node2.getCenter()[1]]
                     #if plt:
                         #plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
                     direction, dist = self.checkRelativePosition(node1, node2)
@@ -108,7 +108,7 @@ class agent(object):
                     #if dist > 4 and plt:
                         #plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
-        #self.pathmap = plt
+        self.pathmap = plt
         #plt.show()
         return self.graph
     
@@ -117,7 +117,7 @@ class agent(object):
         
         plt = self.pathmap #load path map
         
-        for mark in self.bestPath:
+        for mark in self.bestPath[0:2]:
                 node1 = self.RequiredNode[mark]
                 plt.gca().add_patch(node1.drawPathSquare())
         node = self.RequiredNode[self.bestPath[-1]]
