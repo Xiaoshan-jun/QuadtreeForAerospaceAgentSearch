@@ -272,7 +272,7 @@ for i in range(1):
 
     tree = Tree(treeLevel, selectedobstacleMap, reserveMap, moveCostMap) 
     time_start = time.time()
-    AstarAgentp = agent(tree, startPosition,destination,eDistance  = 100, printb = True) 
+    AstarAgentp = agent(tree, startPosition,destination,eDistance  = 2, plotb = True) 
     time_end = time.time()
     time_accumlation = time_end - time_start
     centerHistory = []
@@ -307,11 +307,10 @@ for i in range(1):
         if path:
     
             AstarAgentp.setBestPath(path)
-            
+            AstarAgentp.plotBestPath()
             AstarAgentp.move(1)
             time_end = time.time()
             timep = time_end - time_start
-            AstarAgentp.buildBestGraph()
             time_accumlation += timep            
             
 
@@ -321,7 +320,7 @@ for i in range(1):
         else:
             break
     print('partial map Astar:',time_accumlation, 's')
-    AstarAgentp.buildBestGraph()
+    AstarAgentp.plotBestPath()
     print(centerHistory)
     print('total step of the path:' , len(centerHistory))
     particialastartime.append(time_accumlation)

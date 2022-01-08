@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Oct 13 13:27:48 2021
-Tree Class save the root node which represents the whole world.
-Tree Class has functions that create all the nodes.
+Tree Class save the root node which represents the map.
+Tree Class has functions that create all the child nodes.
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """

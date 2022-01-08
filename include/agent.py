@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct 22 22:23:00 2021
-Agent Class can pick the appropriate nodes and build path graph
+agent has function picks the desired nodes in the tree, builds path graph, 
+defines the initial node, goal node, and does all the plotting.
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """
@@ -12,28 +13,94 @@ import numpy as np
 
 class agent(object): 
     
-    def __init__(self, tree, position, target, eDistance = 2, printb = True):
-        self.tree = tree 
-        self.eDistance = eDistance #defalut 2 (alpha in paper)
-        self.position = position #current position in (x, y)
+    def __init__(self, tree, position, target, eDistance = 2, plotb = True):
+        #definition: initial the agent
+        #Parameters: tree: search tree #position: the agent's current position #target: the agent's goal position 
+        #eDistance: the alpha in the determing function, decide the resolution #plotb: if plot the path
+        #Returns: None
+        self.tree = tree #the map
+        self.eDistance = eDistance #defalut 2 (alpha in the paper) 
+        self.position = position #current position of agent in (x, y)
         self.currentNode = None #current node where the agent locate
-        self.currentNodeIndex = 0  #the index currentNode in RequiredNode. RequiredNode[currentNodeIndex] == currentNode
-        self.target = target #current target in (x, y)
+        self.currentNodeIndex = 0  #the index of currentNode in RequiredNode list. RequiredNode[currentNodeIndex] == currentNode
+        self.target = target #current target position in (x, y)
         self.targetNode = None #target node where the destination locate
-        self.targetNodeIndex = 0 #the index targetNode in RequiredNode
-        self.RequiredNode = []
-        self.pathmap = None #plt of path
+        self.targetNodeIndex = 0 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
+        self.RequiredNode = [] #a list of nodes that build the graph
         self.graph = None #[n,n] array save the cost from node1 to node2
         self.bestPath = []
-        self.findRequiredNode()
-        self.buildPathGraph(printb)
-        
-    def setTree(self, tree):
-        self.tree = tree
+        self.__findRequiredNode()
+        self.plotb = plotb #if plot the path
+        self.__buildPathGraph()
     
-    def findRequiredNode(self):
-        print("finding required node for path planing....")
+    def move(self,step):
+        #definition: move the agent to the new position
+        #Parameters: step: how many steps the agent will go along the path
+        #Returns: None
+        current = self.currentNode
+        stepMark = self.bestPath[step]
+        step = self.RequiredNode[stepMark]
+        direction, dist = self.__checkRelativePosition(current, step)
+        center = step.getCenter()
+        current.setMoveCost(direction, 10000) #prevent the agent go back this path
+        self.position = center
+        self.graph = None
+        self.__findRequiredNode()
+        self.__buildPathGraph()
+    
+    def plotBestPath(self):
+        #definition: plot the best path found by the search algorithm
+        #Parameters: None
+        #Returns: None
+        print("plotting the best path graph for path planing....")
+        
+        plt = self.__drawGraph() #load blocks map
+        if self.plotb: #plot avaliable path
+            Graph = self.graph
+            for i in range(len(self.RequiredNode)):
+                for j in range(len(self.RequiredNode)):
+                    node1 = self.RequiredNode[i]
+                    node2 = self.RequiredNode[j]
+                    if self.__ifNeibor(node1, node2):
+                        direction, dist = self.__checkRelativePosition(node1, node2)
+                        x = [node1.getCenter()[0], node2.getCenter()[0]]
+                        y = [node1.getCenter()[1], node2.getCenter()[1]]
+                        plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
+                        if dist > 4:
+                            plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
+        
+        for mark in self.bestPath: #plot the path founded
+                node1 = self.RequiredNode[mark]
+                plt.gca().add_patch(node1.drawPathSquare())
+        node = self.RequiredNode[self.bestPath[-1]]
+        plt.gca().add_patch(node.drawTargetSquare())
+        #draw target
+        plt.show()
+        return None
+    
+    def setBestPath(self, bestPath):
+        #set the best path
+        self.bestPath = bestPath
+    
+    def plotTree(self):
+        plt.figure(figsize = (32, 32), dpi=100)
+        ax = plt.axes() 
+        for node in self.RequiredNode:
+            if node:
+                ax.add_patch(node.drawSquare())
+        plt.axis('scaled') 
+        plt.title('Reserved map') 
+        plt.show()
+
+        
+    def __findRequiredNode(self):
+        #definition: find the desired nodes of the tree
+        #Parameters: None
+        #Returns: None
+
+        print("finding required node for path planing....") 
         tree = self.tree
+        self.RequiredNode = [] #clear the old list
         openedNode = [tree.getRoot()] #create a list of wait to be open
         ac = self.position #agent center
         tc = self.target #target center
@@ -83,13 +150,12 @@ class agent(object):
             if tx >= xl and ty >= yl and tx < xh and ty < yh:  #(consider agent is in the node if on left/bottom edge)
                 self.targetNode = node
                 self.targetNodeIndex = index
-        return self.RequiredNode
     
-    def buildPathGraph(self, printb):
+    def __buildPathGraph(self):
+        #definition: fill the graph(graph[i][j] = cost of move from node i to node j)
+        #Parameters: None
+        #Returns: graph
         print("building path graph for path planing....")
-        #plt = 0
-        if printb:
-            plt = self.drawGraph() #load node map
         
         Graph = {}
         for i in range(len(self.RequiredNode)):
@@ -97,36 +163,17 @@ class agent(object):
             for j in range(len(self.RequiredNode)):
                 node1 = self.RequiredNode[i]
                 node2 = self.RequiredNode[j]
-                if self.ifNeibor(node1, node2):
-                    #x = [node1.getCenter()[0], node2.getCenter()[0]]
-                    #y = [node1.getCenter()[1], node2.getCenter()[1]]
-                    #if plt:
-                        #plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
-                    direction, dist = self.checkRelativePosition(node1, node2)
+                if self.__ifNeibor(node1, node2):
+                    direction, dist = self.__checkRelativePosition(node1, node2)
                     Graph[i][j] = round(dist * node1.getMoveCost(direction),1)
-                    
-                    #if dist > 4 and plt:
-                        #plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
         self.graph = Graph
-        self.pathmap = plt
-        #plt.show()
-        return self.graph
+        return self.graph    
     
-    def buildBestGraph(self):
-        print("building best path graph for path planing....")
-        
-        plt = self.pathmap #load path map
-        
-        for mark in self.bestPath[0:2]:
-                node1 = self.RequiredNode[mark]
-                plt.gca().add_patch(node1.drawPathSquare())
-        node = self.RequiredNode[self.bestPath[-1]]
-        plt.gca().add_patch(node.drawTargetSquare())
-        #draw target
-        plt.show()
-        return None
     
-    def drawGraph(self):
+    def __drawGraph(self):
+        #definition: create the plt with required blocks
+        #Parameters: None
+        #Returns: plt
         plt.figure(figsize = (8, 8), dpi=100)
         plt.axes()
         for node in self.RequiredNode:
@@ -135,11 +182,12 @@ class agent(object):
         #plt.gca().add_patch(self.getTargetNode().drawTarget())
         plt.axis('scaled')
         plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
-        graph = plt
-        return graph
+        return plt
                 
-    #check if two nodes are neibor by check if they share vertex
-    def ifNeibor(self, node1, node2):
+    def __ifNeibor(self, node1, node2):
+        #definition: check if two nodes are neibor by check if they share vertex
+        #Parameters: node1, node2
+        #Returns: True or False
         list1 = [node1.vertex, node1.vertex_nw, node1.vertex_se, node1.vertex_ne]
 
         list2 = [node2.vertex, node2.vertex_nw, node2.vertex_se, node2.vertex_ne]
@@ -190,8 +238,10 @@ class agent(object):
         else:
             return False
         
-        #check the node2's position relative to node1, and distance between these two node
-    def checkRelativePosition(self, node1, node2):
+    def __checkRelativePosition(self, node1, node2):
+        #definition: check the node2's position relative to node1, and distance between these two node
+        #Parameters: node1, node2
+        #Returns: direction, distance
         c1 = node1.getCenter()
         c1x = c1[0]
         c1y = c1[1]
@@ -233,7 +283,8 @@ class agent(object):
     def getTargetNodeIndex(self):
         return self.targetNodeIndex
     
-    
+    def setTree(self, tree):
+        self.tree = tree
 
     def getGraph(self):
         return self.graph
@@ -241,30 +292,3 @@ class agent(object):
     def getRequiredNode(self):
         return self.RequiredNode
     
-    def setBestPath(self, bestPath):
-        self.bestPath = bestPath
-    
-    def plotTree(self):
-        plt.figure(figsize = (32, 32), dpi=100)
-        ax = plt.axes() 
-        for node in self.RequiredNode:
-            if node:
-                ax.add_patch(node.drawSquare())
-        plt.axis('scaled') 
-        plt.title('Reserved map') 
-        plt.show()
-
-    def move(self,step):
-        current = self.currentNode
-        stepMark = self.bestPath[step]
-        step = self.RequiredNode[stepMark]
-        direction, dist = self.checkRelativePosition(current, step)
-        center = step.getCenter()
-        current.setMoveCost(direction, 10000)
-        self.position = center
-        self.RequiredNode = []
-        self.graph = None
-        self.findRequiredNode()
-        self.buildPathGraph(True)
-        
-        
