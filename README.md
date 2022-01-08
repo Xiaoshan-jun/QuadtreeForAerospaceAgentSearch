@@ -54,6 +54,10 @@ matplotlib
 * 0.1
     * Initial Release
 
+2022/01/08
+
+* 0.2 
+   *add A* search function
 
 
 ## Acknowledgments
