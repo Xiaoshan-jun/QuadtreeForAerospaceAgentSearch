@@ -28,7 +28,7 @@ agent.move(step): move the agent to desired position
 
 you should be fine if you can understand how **testRunAstar** work. If you run it correctly, the output results should look like:
 
-![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165834.png)
+![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165843.png)
 
 
 all the code is comment, please contact me if you have any question. 
