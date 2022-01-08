@@ -26,12 +26,10 @@ agent.move(step): move the agent to desired position
 ## Getting Started
 *testRun.py is the sample code show how we build the path graph and move agent on the graph
 
-you should be fine if you can understand how **testRun.py** work. If you run it correctly, the output results should look like:
+you should be fine if you can understand how **testRunAstar** work. If you run it correctly, the output results should look like:
 
 ![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165834.png)
-![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165837.png)
-![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165840.png)
-![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165843.png)
+
 
 all the code is comment, please contact me if you have any question. 
 
@@ -54,8 +52,14 @@ matplotlib
 * 0.1
     * Initial Release
 
+2022/01/08
+
+* 0.2 
+   *add A* search function
 
 
 ## Acknowledgments
-
+related paper
+Dynamic Unmanned Aircraft System Traffic Volume Reservation Based on Multi-Scale A* Algorithm 
+https://arc.aiaa.org/doi/10.2514/6.2022-2236
 
