@@ -42,8 +42,9 @@ class Node(object):
         self.vertex_ne = [vertex[0] + size,  vertex[1] + size] #vertex_ne is the position of the top right of the vertex
         self.size = size #size is the length of the side of square the node represents
         self.cost = 0 #cost of reach this node, in this case, cost = number of obastacles and reserve
-        self.h = 0# distance to the target - capacity
-        self.gh = 0 #cost for search
+        self.g = 1000000 #cost to come = previous g + dis + cost to stop
+        self.h = 1000000# approximate cost to target
+        self.gh = 1000000 #cost to come + approximate cost to target
         self.path = [] #path reach the node, for search
         self.avaliable = [] #the avaliable node can arrive from this node
         self.movingCost = [] #the avaliable node can arrive from this node
@@ -182,90 +183,76 @@ class Node(object):
     def drawTarget(self):
         cycle = plt.Circle(self.center,0.35, fc='green',ec="red")
         return cycle
-    
-
-    """
-    #implementing the reserve function, not finished  
-    def occupyPlan(self, eOccupy):
-        #if it is the smallest space, add estimated occupy to the node.
-        if self.isLeaf:
-            self.eOccupy += eOccupy
-        else:
-        #find avaliable child nodes, return FalsestartIndex if no avaliable child nodes
-            acn1 = 0 #real acn
-            acn2 = 4 #predicted acn
-            #check how many node has 1/4 space first, if not every node has space, check how many node has 1/acn1
-            while True:
-                for i in range(3): 
-                    a = self.getChild(i)
-                    spaceLeft = a.capacity - a.eOccupy
-                    if spaceLeft > eOccupy/acn2:
-                        acn1 += 1
-                if acn1 == acn2 or acn1 == 0:
-                    break
-                else: 
-                    acn2 = acn1
-                    acn1 = 0
-            if acn1 == 0: #if tell parent eOccupy can not be added
-                return False
-            else:
-                for i in range(3): 
-                    a = self.getChild(i)
-                    spaceLeft = a.capacity - a.eOccupy
-                    if spaceLeft > eOccupy/acn1:
-                        a.eOccupyPlan(eOccupy/acn1)
-                self.eOccupy += eOccupy
-                return True #tell parent eOccupy is successful added
-        """
         
     #return the value cost of the node
     def getCost(self):
         return self.cost
+    
     ##return if the node is leaf node
     def getIsLeaf(self):
         return self.isLeaf
+    
     #returns the depth of the node in the tree
     def getDepth(self):
         return self.depth
+    
     #return the maxDepth of the tree
     def getmaxDepth(self):
         return self.maxDepth
+    
     #return all the vertex of this node
     def getVertex(self):
         return self.vertex[0], self.vertex[1], self.vertex_ne[0], self.vertex_ne[1]
+    
     #return the center position of this node
     def getCenter(self):
         return self.center
+    
     #return this node's partent node
     def getParent(self):
         return self.parent
+    
     #return how many layers under this nodes
     def getDepthFromBottom(self):
         return self.depthFromBottom
     
     def getSize(self):
         return self.size
+    
     #return if this node is openable, may be used in the future
     def openable(self):
         return self.isOpen == False and self.isLeaf == False
+    
     #return if this node should be plot, may be used in the future
     def mapReady(self):
         return self.isOpen == False
-        
+     
+    #add neibor node
     def setAvaliable(self, avaliable):
-        self.avaliable = avaliable
+        self.avaliable.append(avaliable)
+        
 
     def setMovingCost(self, movingCost):
-        self.movingCost = movingCost
-
-    def setMark(self, mark):
-        self.mark = mark
+        self.movingCost.append(movingCost)
+    
+    def neibornoFound(self):
+        return len(self.avaliable) == 0
         
+    #set h value    
     def setH(self, h):
         self.h = h
+    
+    #set g value
+    def setG(self, g):
+        self.g = g
+        
+    #set gh value
+    def setGH(self, gh):
+        self.gh = gh
 
     def getCapacityPercentage(self):
         return self.capacity/self.maxCapacity
+    
     def CutCapacity(self):
         self.capacity - 1
         if self.parent:
