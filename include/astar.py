@@ -55,13 +55,11 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
             return False, False, time_end - time_start
         node = NodeList[frontier.pop()] #get the node with the lowest gh
         if node.mark == targetIndex:
-            print("goal found, testing if it is a shortest path")
-            if node.g < frontier.firstGh():
-                print("shortest path found")
-                time_end = time.time()
-                print('Search time cost: ', time_end - time_start, 's')
-                path = node.path
-                return path, node.gh, time_end - time_start
+            print("shortest path found")
+            time_end = time.time()
+            print('Search time cost: ', time_end - time_start, 's')
+            path = node.path
+            return path, node.gh, time_end - time_start
         explored.append(node.mark) #add the node into the explored list
         #find avaliable next action
         if node.neibornoFound():
@@ -105,8 +103,8 @@ def ifNeibor(node1, node2):
     c2 = node2.getCenter()
     x1 = c1[0]
     x2 = c2[0]
-    y1 = c1[0]
-    y2 = c2[0]
+    y1 = c1[1]
+    y2 = c2[1]
     xd = abs(x2 - x1)
     yd = abs(y2 - y1)
     maxd = max(xd, yd)

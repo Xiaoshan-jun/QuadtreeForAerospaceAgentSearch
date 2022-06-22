@@ -9,44 +9,97 @@ defines the initial node, goal node, and does all the plotting.
 import matplotlib.pyplot as plt
 from math import hypot
 import numpy as np
-
+from include.Node import Node
+from include.astar import search, PriorityQueue
+import time
 
 class agent(object): 
     
-    def __init__(self, tree, position, target, eDistance = 2, plotb = True):
+    def __init__(self, agentNumber, position, target, maxDepth, vertex, leafCapacity, reservedMap, eDistance = 2, alpha = 2, beta = 0.75):
         #definition: initial the agent
         #Parameters: tree: search tree #position: the agent's current position #target: the agent's goal position 
         #eDistance: the alpha in the determing function, decide the resolution #plotb: if plot the path
         #Returns: None
-        self.tree = tree #the map
+        self.agentNumber = agentNumber
+        self.root = Node(maxDepth, 0, vertex, pow(2,maxDepth), None, None, reservedMap, leafCapacity)
+        self.maxDepth = maxDepth
         self.eDistance = eDistance #defalut 2 (alpha in the paper) 
         self.position = position #current position of agent in (x, y)
         self.currentNode = None #current node where the agent locate
         self.currentNodeIndex = 0  #the index of currentNode in RequiredNode list. RequiredNode[currentNodeIndex] == currentNode
         self.target = target #current target position in (x, y)
         self.targetNode = None #target node where the destination locate
-        self.targetNodeIndex = 0 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
+        self.targetNodeIndex = 1000000 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
         self.RequiredNode = [] #a list of nodes that build the graph
-        self.graph = None #[n,n] array save the cost from node1 to node2
         self.bestPath = []
-        self.__findRequiredNode()
-        self.plotb = plotb #if plot the path
-        self.__buildPathGraph()
+        self.alpha = alpha
+        self.beta = beta
+        self.reservedMap = reservedMap
+        self.searchtime = 0
+        self.history = []
+        self.arrive = False
     
-    def move(self,step):
+    def searchAndPlot(self):
+        #definition: call search function with nodes provide by octree
+        #save the results of the search
+        time_start = time.time()
+        print('searching the best path...')
+        t1 = time.time()
+        self.__findRequiredNode()
+        print("node found, cost ", time.time() - t1, " s")
+        self.arrive = self.ifArrive()
+        if self.arrive == False:
+            nodeList = self.getRequiredNode() #get the current opened node list
+            targetIndex = self.getTargetNodeIndex()
+            frontier = PriorityQueue(nodeList)
+            startIndex = self.getCurrentNodeIndex() #find the currentNode
+            startnode = nodeList[startIndex]
+            startnode.path = [startnode.mark]
+            startnode.g = 0
+            frontier.insert(startnode)
+            explored = []
+            path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
+            self.setBestPath(path)
+            self.validStep = 0
+            for n, mark in enumerate(self.bestPath):
+                if self.RequiredNode[mark].size == 1:
+                    self.validStep = n
+                    self.RequiredNode[mark].reserve(self.agentNumber)
+                else:
+                    break
+        time_end = time.time()
+        self.searchtime += time_end - time_start
+        #self.plotTree()
+
+    
+    def move(self):
         #definition: move the agent to the new position
         #Parameters: step: how many steps the agent will go along the path
         #Returns: None
-        current = self.currentNode
-        stepMark = self.bestPath[step]
-        step = self.RequiredNode[stepMark]
-        direction, dist = self.__checkRelativePosition(current, step)
-        center = step.getCenter()
-        current.setMoveCost(direction, 10000) #prevent the agent go back this path
-        self.position = center
-        self.graph = None
-        self.__findRequiredNode()
-        self.__buildPathGraph()
+        if self.arrive == False:
+            current = self.currentNode
+            current.cancel(self.agentNumber) #cancel the current position reservation
+            stepMark = self.bestPath[1]
+            step = self.RequiredNode[stepMark]
+            #cancel reserved node
+            for i in range(self.validStep):
+                mark = self.bestPath[i]
+                node = self.RequiredNode[mark]
+                self.history.append(node.getVertex())
+                node.cancel(self.agentNumber)
+            self.position = step.getCenter()
+            self.history.append(self.history)
+            print("agent", self.agentNumber, " has arrived ",self.position )
+        else:
+            print("agent", self.agentNumber, " has arrived")
+        
+    def ifArrive(self):
+        return self.currentNodeIndex == self.targetNodeIndex
+        
+    
+    def cancelReservation(self):
+        for mark in self.bestPath:
+            self.RequiredNode[mark].cancel(self.agentNumber)
     
     def plotBestPath(self):
         #definition: plot the best path found by the search algorithm
@@ -55,19 +108,7 @@ class agent(object):
         print("plotting the best path graph for path planing....")
         
         plt = self.__drawGraph() #load blocks map
-        if self.plotb: #plot avaliable path
-            Graph = self.graph
-            for i in range(len(self.RequiredNode)):
-                for j in range(len(self.RequiredNode)):
-                    node1 = self.RequiredNode[i]
-                    node2 = self.RequiredNode[j]
-                    if self.__ifNeibor(node1, node2):
-                        direction, dist = self.__checkRelativePosition(node1, node2)
-                        x = [node1.getCenter()[0], node2.getCenter()[0]]
-                        y = [node1.getCenter()[1], node2.getCenter()[1]]
-                        plt.plot(x, y, 'go', linewidth=1 , markersize = 0.1, linestyle="--")
-                        if dist > 4:
-                            plt.text((x[0] + x[1])/2, (y[0] + y[1])/2, str(Graph[i][j]))
+
         
         for mark in self.bestPath: #plot the path founded
                 node1 = self.RequiredNode[mark]
@@ -97,11 +138,9 @@ class agent(object):
         #definition: find the desired nodes of the tree
         #Parameters: None
         #Returns: None
-
-        print("finding required node for path planing....") 
-        tree = self.tree
+        
         self.RequiredNode = [] #clear the old list
-        openedNode = [tree.getRoot()] #create a list of wait to be open
+        openedNode = [self.root] #create a list of wait to be open
         ac = self.position #agent center
         tc = self.target #target center
         while openedNode:
@@ -110,64 +149,36 @@ class agent(object):
             while node == None: #skip None
                 node = openedNode.pop(0)
             #if it is a leaf node, add into RequiredNode, and check if it is the agent/target node
-            if node.getIsLeaf(): 
-                node.setMark(len(self.RequiredNode))
-                nc = node.getCenter()
-                xd2 = (nc[0] - tc[0])**2
-                yd2 = (nc[1] - tc[1])**2
-                dist2 = np.sqrt(xd2 + yd2)
-                node.setH(dist2* (1.1 - node.getCapacityPercentage()))
-                self.RequiredNode.append(node)
-                #check if the Node is the agent locate
-                ax = ac[0]
-                ay = ac[1]
-                xl, yl, xh, yh = node.getVertex()
-                if ax >= xl and ay >= yl and ax < xh and ay < yh:  #(consider agent is in the node if on left/bottom edge)
+            if node.depth == node.maxDepth:
+                important = False
+                if self.__checkInANode(ac, node):  # (consider agent is in the node if on left/bottom edge)
                     self.currentNode = node
-                    self.currentNodeIndex = len(self.RequiredNode) - 1
-
+                    self.currentNodeIndex = len(self.RequiredNode)
+                    important = True
+                if self.__checkInANode(tc, node):  #(consider agent is in the node if on left/bottom edge)
+                    self.targetNode = node
+                    self.targetNodeIndex = len(self.RequiredNode)
+                    important = True
+                if important or node.cost < 0.5:
+                    node.setMark(len(self.RequiredNode))
+                    self.RequiredNode.append(node)
             else:  
                 nc = node.getCenter()
-                xd = (nc[0] - ac[0])**2
-                yd = (nc[1] - ac[1])**2
-                dist = np.sqrt(xd + yd) #the distance between current node and agent position
+                dist = self.getDistance(nc, ac) #the distance between current node and agent position
                 #check if the Node should be explore, we only explore node is close to the agent and target
-                if dist <= (self.eDistance * (2**(node.getDepthFromBottom())))  :
+                if dist <= self.eDistance * (self.alpha**(node.getDepthFromBottom())) or node.Cr < self.beta :
                 #if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()) :
-                    openedNode.extend(node.getallChild())
+                    openedNode.extend(node.addChild())
                 else:
-                    node.setMark(len(self.RequiredNode))
-                    xd2 = (nc[0] - tc[0])**2
-                    yd2 = (nc[1] - tc[1])**2
-                    dist2 = np.sqrt(xd2 + yd2)  #the distance between current node and targets position
-                    node.setH(dist2)
-                    self.RequiredNode.append(node)
-        #check if the Node is the agent's target locate after requiredNode is created
-        tx = tc[0]
-        ty = tc[1]
-        for index, node in enumerate(self.RequiredNode):
-            xl, yl, xh, yh = node.getVertex()
-            if tx >= xl and ty >= yl and tx < xh and ty < yh:  #(consider agent is in the node if on left/bottom edge)
-                self.targetNode = node
-                self.targetNodeIndex = index
+                    important = False
+                    if self.__checkInANode(tc, node):  #(consider agent is in the node if on left/bottom edge)
+                        self.targetNode = node
+                        self.targetNodeIndex = len(self.RequiredNode)
+                        important = True
+                    if important or node.cost < 2:
+                        node.setMark(len(self.RequiredNode))
+                        self.RequiredNode.append(node)
     
-    def __buildPathGraph(self):
-        #definition: fill the graph(graph[i][j] = cost of move from node i to node j)
-        #Parameters: None
-        #Returns: graph
-        print("building path graph for path planing....")
-        
-        Graph = {}
-        for i in range(len(self.RequiredNode)):
-            Graph[i] = {}
-            for j in range(len(self.RequiredNode)):
-                node1 = self.RequiredNode[i]
-                node2 = self.RequiredNode[j]
-                if self.__ifNeibor(node1, node2):
-                    direction, dist = self.__checkRelativePosition(node1, node2)
-                    Graph[i][j] = round(dist * node1.getMoveCost(direction),1)
-        self.graph = Graph
-        return self.graph    
     
     
     def __drawGraph(self):
@@ -184,92 +195,8 @@ class agent(object):
         plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
         return plt
                 
-    def __ifNeibor(self, node1, node2):
-        #definition: check if two nodes are neibor by check if they share vertex
-        #Parameters: node1, node2
-        #Returns: True or False
-        list1 = [node1.vertex, node1.vertex_nw, node1.vertex_se, node1.vertex_ne]
-
-        list2 = [node2.vertex, node2.vertex_nw, node2.vertex_se, node2.vertex_ne]
+               
         
-        nt1 = map(tuple, list1)
-        nt2 = map(tuple, list2)
-        st1 = set(nt1)
-        st2 = set(nt2)
-        list3 = list(set(st1).intersection(st2)) #share vertex
-        
-        xs1 = node1.vertex[0]
-        xl1 = node1.vertex_ne[0]
-        ys1 = node1.vertex[1]
-        yl1 = node1.vertex_ne[1]
-        
-        xs2 = node2.vertex[0]
-        xl2 = node2.vertex_ne[0]
-        ys2 = node2.vertex[1]
-        yl2 = node2.vertex_ne[1]
-        
-        if xl2 == xs1: #may W
-            if yl2 >= ys1 and yl2 <= yl1:
-                return True
-            elif ys2 >= ys1 and ys2 <= yl1:
-                return True
-            
-        if xs2 == xl1: #may E
-            if yl2 >= ys1 and yl2 <= yl1:
-                return True
-            elif ys2 >= ys1 and ys2 <= yl1:
-                return True
-            
-        if ys2 == yl1: #may N
-            if xl2 >= xs1 and xl2 <= xl1:
-                return True
-            elif xs2 >= xs1 and xs2 <= xl1:
-                return True
-        
-        if yl2 == ys1: #may S
-            if xl2 >= xs1 and xl2 <= xl1:
-                return True
-            elif xs2 >= xs1 and xs2 <= xl1:
-                return True
-                
-        
-        if len(list3) > 0 and len(list3) < 4:
-            return True
-        else:
-            return False
-        
-    def __checkRelativePosition(self, node1, node2):
-        #definition: check the node2's position relative to node1, and distance between these two node
-        #Parameters: node1, node2
-        #Returns: direction, distance
-        c1 = node1.getCenter()
-        c1x = c1[0]
-        c1y = c1[1]
-        c2 = node2.getCenter()
-        c2x = c2[0]
-        c2y = c2[1]
-        xd = (c1x - c2x)**2
-        yd = (c2y - c1y)**2
-        dist = np.sqrt(xd + yd)
-        if c2x > c1x:
-            if c2y > c1y: #NE
-                return 2, dist
-            elif c2y == c1y: #E
-                return 4, dist
-            elif c2y < c1y: #SE
-                return 7, dist
-        elif c2x == c1x:
-            if c2y > c1y: #N
-                return 1, dist
-            elif c2y < c1y: #S
-                return 6, dist
-        elif c2x < c1x:
-            if c2y > c1y: #NW
-                return 0, dist
-            elif c2y == c1y: #W
-                return 3, dist
-            elif c2y < c1y: #SW
-                return 5, dist
             
     def getCurrentNode(self):
         return self.currentNode
@@ -291,4 +218,23 @@ class agent(object):
     
     def getRequiredNode(self):
         return self.RequiredNode
+    
+    def __checkInANode(self, position, node):
+        x = position[0]
+        y = position[1]
+        v = node.getVertex()
+        nxl = v[0]
+        nyl = v[1]
+        size = node.getSize()
+        nxh = v[0] + size
+        nyh = v[1] + size
+        if x >= nxl and x <nxh and y >= nyl and y < nyh:
+            return True
+        else:
+            return False
+    
+    def getDistance(self, c1, c2):
+        x = c1[0] - c2[0]
+        y = c1[1] - c2[1]
+        return np.sqrt(x**2 + y**2)
     
