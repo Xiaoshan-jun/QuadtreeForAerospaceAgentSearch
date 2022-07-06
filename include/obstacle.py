@@ -15,8 +15,6 @@ class Obstacle(object):
             self.rectangle(250, 482, 10, 20)
             self.rectangle(15, 250, 20, 10)
             self.rectangle(482, 250, 20, 10)
-            if t == 10:
-                if t == 10:
         if d == 10:
             self.plusbuilding(100, 100, 820, 820, 240, 240, 1)
             self.rectangle(500, 30, 20, 40)

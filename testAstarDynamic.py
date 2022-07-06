@@ -142,7 +142,7 @@ NUM_TESTING = 100
 RANDOM_POSITION = True
 maxDepth = 9 # 9 = 512*512
 global reservedMaps
-original = Obstacle(maxDepth)
+original = Obstacle(maxDepth,0)
 reservedMap = original.getMap()
 start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
 target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
