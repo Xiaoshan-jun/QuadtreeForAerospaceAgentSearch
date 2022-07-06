@@ -20,7 +20,7 @@ class Node(object):
         self.reserved = np.count_nonzero(self.reservedMap)
         self.maxCapacity = pow(4, maxDepth - depth)
         self.leafCapacity = leafCapacity
-        self.capacity = 1 * pow(4, maxDepth - depth) - self.reserved #max capacity of this node, leaf node's capacity is 1
+        self.capacity =  pow(4, maxDepth - depth) - self.reserved #max capacity of this node, leaf node's capacity is 1
         self.Cr = self.capacity/self.maxCapacity
         self.depth = depth #depth of this node in the tree
         self.depthFromBottom = maxDepth - depth
@@ -32,9 +32,7 @@ class Node(object):
                          "SE":None,
                          "NW":None,
                          "NE":None,   } #children dictionary 
-        #0: NW, 1:N, 2: NE, 3:W, 4:E, 5:SW 6:S,7:SE
         #N means the neibor which is above the current node, S: below, E: right, W: left
-        self.isOpen = False #True its children have been generated
         self.isLeaf = depth == maxDepth #whether that node is a leaf of the tree
         self.vertex = vertex #vertex is the position of the bottom left of the vertex(vertex_sw)
         self.center = [vertex[0] + 1/2 *size,  vertex[1] + 1/2 *size]
@@ -42,7 +40,7 @@ class Node(object):
         self.vertex_se = [vertex[0] + size,  vertex[1]] #vertex_se is the position of the bottom right of the vertex
         self.vertex_ne = [vertex[0] + size,  vertex[1] + size] #vertex_ne is the position of the top right of the vertex
         self.size = size #size is the length of the side of square the node represents
-        self.cost = 1 - self.Cr #cost of reach this node, in this case, cost = number of obastacles and reserve
+        self.cost = 1/(self.Cr + 0.0000001) #cost of reach this node, in this case, cost = number of obastacles and reserve
         self.g = 1000000 #cost to come = previous g + dis + cost to stop
         self.h = 1000000# approximate cost to target
         self.gh = 1000000 #cost to come + approximate cost to target
@@ -57,9 +55,7 @@ class Node(object):
 #if the root calls this function, the function will create all the nodes in the tree.
     def addChild(self):
         if self.depth != self.maxDepth: #check if this node can be furthur open
-        # 0 denotes LSW(low, south, west) 1 denotes LSE(low, south, east) 2 denotes LNW(low, north, west) 3 denotes LNE(low, north, east)
-        # 4 denotes HSW(high, south, west) 5 denotes HSE(high, south, east) 6 denotes HNW(high, north, west) 7 denotes HNE(high, north, east)
-            #add SW child node, vertex is the same as the parent node
+            # 0 denotes SW(bottom-left), 1 denotes SE(bottom-right), 2 denotes NW(top-left), 3 denotes NE(top east)
             mid = int(self.size/2)
             self.children["SW"] = Node(self.maxDepth,  self.depth + 1, self.vertex, self.size/2, self, 0,                                                                              [i[0:mid] for i in self.reservedMap[0:mid]] ,self.leafCapacity)
             self.children["SE"] = Node(self.maxDepth,  self.depth + 1, [self.vertex[0] + self.size/2, self.vertex[1]], self.size/2, self, 1,                           [i[mid:] for i in self.reservedMap[0:mid]] , self.leafCapacity)
@@ -107,7 +103,7 @@ class Node(object):
         min_val = 0
         max_val = 1
         norm = matplotlib.colors.Normalize(min_val, max_val)
-        color_i = my_cmap(norm(self.cost))
+        color_i = my_cmap(norm(1 - self.Cr))
         square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="gray")
         return square
     
@@ -117,7 +113,7 @@ class Node(object):
         min_val = 0
         max_val = 1
         norm = matplotlib.colors.Normalize(min_val, max_val)
-        color_i = my_cmap(norm(self.cost))
+        color_i = my_cmap(norm(1 - self.Cr))
         square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="red", lw = 3)
         return square
     
@@ -127,7 +123,7 @@ class Node(object):
         min_val = 0
         max_val = 1
         norm = matplotlib.colors.Normalize(min_val, max_val)
-        color_i = my_cmap(norm(self.cost))
+        color_i = my_cmap(norm(self.Cr))
         square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="green", lw = 3)
         return square
     
@@ -175,13 +171,6 @@ class Node(object):
     def getSize(self):
         return self.size
     
-    #return if this node is openable, may be used in the future
-    def openable(self):
-        return self.isOpen == False and self.isLeaf == False
-    
-    #return if this node should be plot, may be used in the future
-    def mapReady(self):
-        return self.isOpen == False
      
     #add neibor node
     def setAvaliable(self, avaliable):

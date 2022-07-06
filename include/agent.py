@@ -38,6 +38,7 @@ class agent(object):
         self.searchtime = 0
         self.history = []
         self.arrive = False
+        self.loop = 0
     
     def searchAndPlot(self):
         #definition: call search function with nodes provide by octree
@@ -47,7 +48,12 @@ class agent(object):
         t1 = time.time()
         self.__findRequiredNode()
         print("node found, cost ", time.time() - t1, " s")
+        #self.__drawGraph()
         self.arrive = self.ifArrive()
+        if self.loop > 15:
+            self.arrive = True
+            self.history = []
+            print("agent stuck in a loop")
         if self.arrive == False:
             nodeList = self.getRequiredNode() #get the current opened node list
             targetIndex = self.getTargetNodeIndex()
@@ -59,6 +65,10 @@ class agent(object):
             frontier.insert(startnode)
             explored = []
             path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
+            if path == False:
+                self.arrive = True
+                self.history = []
+                return False
             self.setBestPath(path)
             self.validStep = 0
             for n, mark in enumerate(self.bestPath):
@@ -81,14 +91,14 @@ class agent(object):
             current.cancel(self.agentNumber) #cancel the current position reservation
             stepMark = self.bestPath[1]
             step = self.RequiredNode[stepMark]
-            #cancel reserved node
-            for i in range(self.validStep):
+            for i in range(self.validStep + 1):
                 mark = self.bestPath[i]
                 node = self.RequiredNode[mark]
-                self.history.append(node.getVertex())
                 node.cancel(self.agentNumber)
             self.position = step.getCenter()
-            self.history.append(self.history)
+            if self.position in self.history:
+                self.loop += 1
+            self.history.append(self.position)
             print("agent", self.agentNumber, " has arrived ",self.position )
         else:
             print("agent", self.agentNumber, " has arrived")
@@ -143,30 +153,28 @@ class agent(object):
         openedNode = [self.root] #create a list of wait to be open
         ac = self.position #agent center
         tc = self.target #target center
+        count = 0
         while openedNode:
+            count += 1
             #get the first node in the openedNode list
             node = openedNode.pop(0)
             while node == None: #skip None
                 node = openedNode.pop(0)
             #if it is a leaf node, add into RequiredNode, and check if it is the agent/target node
             if node.depth == node.maxDepth:
-                important = False
                 if self.__checkInANode(ac, node):  # (consider agent is in the node if on left/bottom edge)
                     self.currentNode = node
                     self.currentNodeIndex = len(self.RequiredNode)
-                    important = True
                 if self.__checkInANode(tc, node):  #(consider agent is in the node if on left/bottom edge)
                     self.targetNode = node
                     self.targetNodeIndex = len(self.RequiredNode)
-                    important = True
-                if important or node.cost < 0.5:
-                    node.setMark(len(self.RequiredNode))
-                    self.RequiredNode.append(node)
+                node.setMark(len(self.RequiredNode))
+                self.RequiredNode.append(node)
             else:  
                 nc = node.getCenter()
                 dist = self.getDistance(nc, ac) #the distance between current node and agent position
                 #check if the Node should be explore, we only explore node is close to the agent and target
-                if dist <= self.eDistance * (self.alpha**(node.getDepthFromBottom())) or node.Cr < self.beta :
+                if dist <= self.eDistance * (self.alpha**(node.getDepthFromBottom())) :
                 #if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()) :
                     openedNode.extend(node.addChild())
                 else:
@@ -175,10 +183,10 @@ class agent(object):
                         self.targetNode = node
                         self.targetNodeIndex = len(self.RequiredNode)
                         important = True
-                    if important or node.cost < 2:
+                    if important or node.depth < 3 or node.Cr > self.beta:
                         node.setMark(len(self.RequiredNode))
                         self.RequiredNode.append(node)
-    
+        #print(count)
     
     
     def __drawGraph(self):
@@ -222,12 +230,7 @@ class agent(object):
     def __checkInANode(self, position, node):
         x = position[0]
         y = position[1]
-        v = node.getVertex()
-        nxl = v[0]
-        nyl = v[1]
-        size = node.getSize()
-        nxh = v[0] + size
-        nyh = v[1] + size
+        nxl, nyl, nxh, nyh = node.getVertex()
         if x >= nxl and x <nxh and y >= nyl and y < nyh:
             return True
         else:

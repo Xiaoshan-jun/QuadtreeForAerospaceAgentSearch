@@ -5,7 +5,11 @@ Created on Tue Jun 21 15:57:26 2022
 @author: dekom
 """
 from include.obstacle import Obstacle
+import matplotlib.pyplot as plt
+import matplotlib.colors
+import matplotlib.cm as cm
 import time
+import numpy as np
 # ----------------------------Astar Search Algorithm start-----------
 class node:
     def __init__(self, position, g, gh):
@@ -75,7 +79,8 @@ def aStarSearch(xI,xG, maxDepth,heuristic='euclidean'):
   Finally, the algorithm should return the number of visited
   nodes during the search."""
   #             E
-    actions = [(1, 1), (0, 1), (-1, 1), (-1, 0), (1, 0), (1,-1), (0, -1), (-1, -1)]
+    #actions = [(1, 1), (0, 1), (-1, 1), (-1, 0), (1, 0), (1,-1), (0, -1), (-1, -1)]
+    actions = [ ( 0, 1), ( -1, 0), ( 1, 0),  ( 0, -1)]
     #actions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
     root = node(xI, 0, euclideanHeuristic(xI, xG))
     root.path = []
@@ -88,6 +93,8 @@ def aStarSearch(xI,xG, maxDepth,heuristic='euclidean'):
     while True:
         count = count + 1
         #print(count)
+        if visited._index == 0:
+            return [], [], [], [], []
         currentposition = visited.pop()
         if currentposition == xG:
             print("goal found")
@@ -130,13 +137,50 @@ def aStarSearch(xI,xG, maxDepth,heuristic='euclidean'):
         actionList.append(action)
     return actionList, path, nodeList, count, explored
 
-global reservedMap
-obstacle = Obstacle()
-reservedMap = obstacle.getMap()
-maxDepth = 9
-target = (511,511)
-position = (0, 0)
+#test parameter
+NUM_TESTING = 100
+RANDOM_POSITION = True
+maxDepth = 9 # 9 = 512*512
+global reservedMaps
+original = Obstacle(maxDepth)
+reservedMap = original.getMap()
+start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
+target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
+PATHLENGTH = []
+Succesful = 0
 t1 = time.time()
-actionList, path, nodeList, count, explored = aStarSearch(position,target, maxDepth)
-time = time.time() - t1
-print("search time: ", time)
+for i in range(NUM_TESTING):
+    current = tuple(start[i])
+    destination = tuple(target[i])
+    actionList, path, nodeList, count, explored = aStarSearch(current,destination, maxDepth)
+
+    
+t2 = time.time()
+print("time:" , t2 - t1)    
+# maxDepth = 9
+# target = (511,511)
+# position = (10, 10)
+# actionList, path, nodeList, count, explored = aStarSearch(position,target, maxDepth)
+# for i in path: 
+#     if i[0] > 10 and i[0] < 502 and i[1] > 10 and i[1] < 502:
+#         reservedMap[i] = 2
+    
+# lensum.append(len(path))
+# target = (507,507)
+# position = (7, 7)
+
+
+plt.figure(figsize = (8, 8), dpi=100)
+plt.axes()
+my_cmap = cm.get_cmap('Greys')
+min_val = 0
+max_val = 7
+norm = matplotlib.colors.Normalize(min_val, max_val)
+for i in range(1024):
+    for j in range(1024):
+        if reservedMap[i][j] != 0:
+            color_i = my_cmap(norm(reservedMap[i][j]))
+            square = plt.Rectangle((i, j), 1, 1, fc=color_i )
+            plt.gca().add_patch(square)
+plt.axis('scaled')
+plt.show()

@@ -66,7 +66,7 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
             #find its neibor
             for j in range(len(NodeList)):
                 node2 = NodeList[j]
-                neibor, dist = ifNeibor(node, node2)
+                neibor, dist = ifNeibor4(node, node2)
                 if neibor:
                     node.setAvaliable(j) #add node of into
                     node.setMovingCost(dist) #add distance 
@@ -74,7 +74,7 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
         for mark in node.avaliable:
             child = NodeList[mark]
             #new g is node.g + distance + cost to arrive new node
-            newg = node.g + node.movingCost[node.avaliable.index(mark)] + child.cost
+            newg = node.g + child.cost * (node.movingCost[node.avaliable.index(mark)])
             if newg < child.g:
             # print(mark)
                 if mark not in frontier.queue: #node does not found in frontier queue
@@ -95,7 +95,7 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
     time_end = time.time()
     print('Search time cost', time_end - time_start, 's')
     
-def ifNeibor(node1, node2):
+def ifNeibor8(node1, node2):
     #definition: check if two nodes are neibor by check if they share vertex
     #Parameters: node1, node2
     #Returns: True or False
@@ -111,6 +111,29 @@ def ifNeibor(node1, node2):
     dist = getDistance(c1, c2)
     maxNeiborDist = (node1.getSize() + node2.getSize()) / 2
     return maxd <= maxNeiborDist and maxd > 0, dist
+
+def ifNeibor4(node1, node2):
+    #definition: check if two nodes are neibor by check if they share vertex
+    #Parameters: node1, node2
+    #Returns: True or False
+    c1 = node1.getCenter()
+    c2 = node2.getCenter()
+    x1 = c1[0]
+    x2 = c2[0]
+    y1 = c1[1]
+    y2 = c2[1]
+    xd = abs(x2 - x1)
+    yd = abs(y2 - y1)
+    maxd = max(xd, yd)
+    dist = getDistance(c1, c2)
+    maxNeiborDist = (node1.getSize() + node2.getSize()) / 2
+    return maxd <= maxNeiborDist and maxd > 0 and dist < (node1.getSize() + node2.getSize()) * np.sqrt(2) / 2, dist
+def findNeibor(node):
+    # 0 denotes SW(bottom-left), 1 denotes SE(bottom-right), 2 denotes NW(top-left), 3 denotes NE(top east)
+    #find north
+    pass
+            
+
 
 def getDistance( c1, c2):
     x = c1[0] - c2[0]
