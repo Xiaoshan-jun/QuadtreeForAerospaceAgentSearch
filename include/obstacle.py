@@ -21,6 +21,8 @@ class Obstacle(object):
             self.rectangle(500, 980, 20, 40)
             self.rectangle(30, 500, 40, 20)
             self.rectangle(980, 500, 40, 20)
+            if t == 10:
+                self.rectangle(300, 0, 20, 100)
         
         
     def getMap(self):

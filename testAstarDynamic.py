@@ -140,12 +140,12 @@ def aStarSearch(xI,xG, maxDepth,heuristic='euclidean'):
 #test parameter
 NUM_TESTING = 100
 RANDOM_POSITION = True
-maxDepth = 9 # 9 = 512*512
+maxDepth = 10 # 9 = 512*512
 global reservedMaps
 original = Obstacle(maxDepth,0)
 reservedMap = original.getMap()
-start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
-target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
+start = np.genfromtxt('start10.csv', delimiter=',', dtype = int)
+target = np.genfromtxt("target10.csv", delimiter=',', dtype = int)
 PATHLENGTH = []
 Succesful = 0
 t1 = time.time()
@@ -153,7 +153,6 @@ for i in range(NUM_TESTING):
     current = tuple(start[i])
     destination = tuple(target[i])
     actionList, path, nodeList, count, explored = aStarSearch(current,destination, maxDepth)
-
     
 t2 = time.time()
 print("time:" , t2 - t1)    
