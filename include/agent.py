@@ -31,7 +31,7 @@ class agent(object):
         self.targetNode = None #target node where the destination locate
         self.targetNodeIndex = 1000000 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
         self.RequiredNode = [] #a list of nodes that build the graph
-        self.bestPath = []
+        self.bestPath = False #false means need to search, True means searching, 
         self.alpha = alpha
         self.beta = beta
         self.reservedMap = reservedMap
@@ -41,18 +41,18 @@ class agent(object):
         self.loop = 0
     
     def searchAndPlot(self):
-        #definition: call search function with nodes provide by octree
+        #definition: find the required nodes.
         #save the results of the search
         time_start = time.time()
-        print('searching the best path...')
+        #print('searching the best path...')
         t1 = time.time()
         self.__findRequiredNode()
-        print("node found, cost ", time.time() - t1, " s")
+        #print("node found, cost ", time.time() - t1, " s")
         #self.__drawGraph()
         self.arrive = self.ifArrive()
         if self.loop > 15:
-            self.arrive = True
-            self.history = []
+            self.alpha = self.alpha + 0.5
+            self.loop = 0
             print("agent stuck in a loop")
         if self.arrive == False:
             nodeList = self.getRequiredNode() #get the current opened node list
@@ -66,8 +66,7 @@ class agent(object):
             explored = []
             path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
             if path == False:
-                self.arrive = True
-                self.history = []
+                self.setBestPath(path)
                 return False
             self.setBestPath(path)
             self.validStep = 0
@@ -80,6 +79,7 @@ class agent(object):
         time_end = time.time()
         self.searchtime += time_end - time_start
         #self.plotTree()
+        return self
 
     
     def move(self):
@@ -91,6 +91,9 @@ class agent(object):
             current.cancel(self.agentNumber) #cancel the current position reservation
             stepMark = self.bestPath[1]
             step = self.RequiredNode[stepMark]
+            # if step.reservedMap[0][0] != self.agentNumber:
+            #     self.bestPath = False
+            #     return False
             for i in range(self.validStep + 1):
                 mark = self.bestPath[i]
                 node = self.RequiredNode[mark]
@@ -102,6 +105,7 @@ class agent(object):
             print("agent", self.agentNumber, " has arrived ",self.position )
         else:
             print("agent", self.agentNumber, " has arrived")
+        self.bestPath = False
         
     def ifArrive(self):
         return self.currentNodeIndex == self.targetNodeIndex
@@ -173,8 +177,9 @@ class agent(object):
             else:  
                 nc = node.getCenter()
                 dist = self.getDistance(nc, ac) #the distance between current node and agent position
+                dist2 = self.getDistance(nc, tc)
                 #check if the Node should be explore, we only explore node is close to the agent and target
-                if dist <= self.eDistance * (self.alpha**(node.getDepthFromBottom())) :
+                if dist <= self.eDistance * (self.alpha**(node.getDepthFromBottom())):
                 #if dist <= self.eDistance**(node.getDepthFromBottom()) or dist2 <= self.eDistance**(node.getDepthFromBottom()) :
                     openedNode.extend(node.addChild())
                 else:
@@ -183,9 +188,13 @@ class agent(object):
                         self.targetNode = node
                         self.targetNodeIndex = len(self.RequiredNode)
                         important = True
-                    if important or node.depth < 3 or node.Cr > self.beta:
+                    if dist2 <= 1.5 * (self.alpha**(node.getDepthFromBottom())):
+                        important = True
+                    if important or node.depth < 3 or node.Cr > self.beta: #* np.log(node.depth):
                         node.setMark(len(self.RequiredNode))
                         self.RequiredNode.append(node)
+        #plt = self.__drawGraph()
+        #plt.show()
         #print(count)
     
     

@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm as cm
 import random
+import multiprocessing
 
 #test parameter
 NUM_AGENT = 10
@@ -29,6 +30,9 @@ beta = 0.25
 start = []
 target = []
 #create reservedMap
+global reservedMap
+original = Obstacle(maxDepth,0)
+reservedMap = original.getMap()
 #create multiple agent
 agentList = []
 for i in range(NUM_AGENT):

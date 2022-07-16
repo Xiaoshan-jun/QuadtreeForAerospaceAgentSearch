@@ -55,9 +55,10 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
             return False, False, time_end - time_start
         node = NodeList[frontier.pop()] #get the node with the lowest gh
         if node.mark == targetIndex:
-            print("shortest path found")
+            
+            #print("shortest path found")
             time_end = time.time()
-            print('Search time cost: ', time_end - time_start, 's')
+            #print('Search time cost: ', time_end - time_start, 's')
             path = node.path
             return path, node.gh, time_end - time_start
         explored.append(node.mark) #add the node into the explored list
@@ -79,7 +80,7 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
             # print(mark)
                 if mark not in frontier.queue: #node does not found in frontier queue
                     child.setG(newg)
-                    child.setH(euclideanHeuristic(child.getCenter(), goalNode.getCenter()))
+                    child.setH(child.cost * euclideanHeuristic(child.getCenter(), goalNode.getCenter()))
                     child.setGH(newg + child.h)
                     child.path = node.path.copy()
                     child.path.append(child.mark)
@@ -93,7 +94,7 @@ def search(frontier, explored, targetIndex, NodeList):  # code freeze
                     frontier.insert(child)
                 
     time_end = time.time()
-    print('Search time cost', time_end - time_start, 's')
+    #print('Search time cost', time_end - time_start, 's')
     
 def ifNeibor8(node1, node2):
     #definition: check if two nodes are neibor by check if they share vertex

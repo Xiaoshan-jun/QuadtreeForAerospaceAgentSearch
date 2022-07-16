@@ -6,69 +6,52 @@ Created on Tue Jun 21 14:43:00 2022
 """
 from include.Node import Node
 from include.agent import agent
-from include.obstacle import Obstacle
+from include.obstacle import obstacle
+from include.DynamicEnv import DynamicEnv
 import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm as cm
 import random
+import multiprocessing
 
-#test parameter
-NUM_AGENT = 1
-NUM_TESTING = 100
-RANDOM_POSITION = True
-maxDepth = 9 # 9 = 512*512
-vertex = [0, 0]
-leafCapacity = 1
-a = (1, 1)
-alpha = 1.5
-beta = 0.25
-reservedMap = Obstacle()
-reservedMap = reservedMap.getMap()
-start = np.genfromtxt('start.csv', delimiter=',')
-target = np.genfromtxt("target.csv", delimiter=',')
-AgentSearchTime = np.zeros(NUM_AGENT)
-TotalNode = []
-PATHLENGTH = []
-Succesful = []
-AgentList = []
-t1 = time.time()
-totalNode = []
-PathLength = []
-for i in range(0, NUM_TESTING):
-    t11 = time.time()
-    agent2 = agent(i, start[i], target[i], maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta)
-    agent2.searchAndPlot()
-    totalNode.append(len(agent2.getRequiredNode()))
-    while True:
-        agent2.searchAndPlot()
-        if agent2.arrive == False:
-            #agent2.plotBestPath()
-            agent2.move()
-        else:
-            break
-    PathLength.append(len(agent2.history))
-    print("search time: ", time.time() - t11)
-t = time.time() - t1
-print("total search time: ", t)
-AgentSearchTime[0] = t
-TotalNode.append(np.mean(totalNode))
-Succesful.append(np.count_nonzero(PathLength)/NUM_TESTING)
-#PathLength = PathLength[PathLength != 0]
-averagePathLength = np.mean(PathLength)
+if __name__ == "__main__":
+    #test parameter
+    NUM_AGENT = 10
+    NUM_TESTING = 100
+    RANDOM_POSITION = True
+    maxDepth = 9 # 9 = 512*512
+    vertex = [0, 0]
+    leafCapacity = 1
+    a = (1, 1)
+    alpha = 2
+    beta = 0.75
+    reservedMap = obstacle(maxDepth)
+    reservedMap = reservedMap.getMap()
+    start = np.genfromtxt('start.csv', delimiter=',')
+    target = np.genfromtxt("target.csv", delimiter=',')
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    agentList = []
+    for i in range(0, NUM_AGENT):
+        agentList.append(agent(i + 1, start[i], target[i], maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
+    #managerList = manager.list(agentList)
+    dynamic_env = DynamicEnv(reservedMap, agentList)
+    t0 = time.time()
+    ct = time.time() #current time 
+    #processes = []
+    # for Agent in agentList:
+    #     p = multiprocessing.Process(target = Agent.searchAndPlot)
+    # processes.append(p)
+    while len(agentList) > 0:
+        if time.time() - ct > 1:
+            print(time.time())
+            ct = time.time()
+            for i in range(len(agentList)):
+                agentList[i].searchAndPlot()
+            dynamic_env.step()
+    t1 = time.time() - t0
+    
+    
 
-# plt.figure(figsize = (8, 8), dpi=100)
-# plt.axes()
-# my_cmap = cm.get_cmap('Greys')
-# min_val = 0
-# max_val = 7
-# norm = matplotlib.colors.Normalize(min_val, max_val)
-# for i in range(512):
-#     for j in range(512):
-#         if reservedMap[i][j] != 0:
-#             color_i = my_cmap(norm(reservedMap[i][j]))
-#             square = plt.Rectangle((i, j), 1, 1, fc=color_i )
-#             plt.gca().add_patch(square)
-# plt.axis('scaled')
-# plt.show()

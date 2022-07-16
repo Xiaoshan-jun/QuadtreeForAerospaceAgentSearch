@@ -4,7 +4,7 @@ Created on Tue Jun 21 15:57:26 2022
 
 @author: dekom
 """
-from include.obstacle import Obstacle
+from include.obstacle import obstacle
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm as cm
@@ -142,7 +142,7 @@ NUM_TESTING = 100
 RANDOM_POSITION = True
 maxDepth = 10 # 9 = 512*512
 global reservedMaps
-original = Obstacle(maxDepth,0)
+original = obstacle(maxDepth)
 reservedMap = original.getMap()
 start = np.genfromtxt('start10.csv', delimiter=',', dtype = int)
 target = np.genfromtxt("target10.csv", delimiter=',', dtype = int)
@@ -153,9 +153,11 @@ for i in range(NUM_TESTING):
     current = tuple(start[i])
     destination = tuple(target[i])
     actionList, path, nodeList, count, explored = aStarSearch(current,destination, maxDepth)
-    
+    PATHLENGTH.append(len(path))
 t2 = time.time()
+print("average total Length: " ,np.mean(PATHLENGTH))
 print("time:" , t2 - t1)    
+Succesful=(np.count_nonzero(PATHLENGTH)/NUM_TESTING)
 # maxDepth = 9
 # target = (511,511)
 # position = (10, 10)
@@ -175,8 +177,8 @@ my_cmap = cm.get_cmap('Greys')
 min_val = 0
 max_val = 7
 norm = matplotlib.colors.Normalize(min_val, max_val)
-for i in range(1024):
-    for j in range(1024):
+for i in range(512):
+    for j in range(512):
         if reservedMap[i][j] != 0:
             color_i = my_cmap(norm(reservedMap[i][j]))
             square = plt.Rectangle((i, j), 1, 1, fc=color_i )

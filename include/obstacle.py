@@ -6,24 +6,17 @@ Created on Sat Dec  4 03:21:11 2021
 """
 import numpy as np
 
-class Obstacle(object):
-    def __init__(self, d, t):
+class obstacle(object):
+    def __init__(self, d):
         self.map = np.zeros((2**d,2**d))
+        #0 is free space, 99 means permnant obstacle, 100 means temprary obstacle
         if d == 9:
-            self.plusbuilding(50, 50, 410, 410, 120, 120, 1)
-            self.rectangle(250, 15, 10, 20)
-            self.rectangle(250, 482, 10, 20)
-            self.rectangle(15, 250, 20, 10)
-            self.rectangle(482, 250, 20, 10)
-        if d == 10:
-            self.plusbuilding(100, 100, 820, 820, 240, 240, 1)
-            self.rectangle(500, 30, 20, 40)
-            self.rectangle(500, 980, 20, 40)
-            self.rectangle(30, 500, 40, 20)
-            self.rectangle(980, 500, 40, 20)
-            if t == 10:
-                self.rectangle(300, 0, 20, 100)
-        
+            #4 airport
+            self.rectangle(50, 251, 10, 10)
+            self.rectangle(452, 251, 10, 10)
+            self.rectangle(251, 50, 10, 10)
+            self.rectangle(251, 452, 10, 10)
+
         
     def getMap(self):
         return self.map
@@ -50,7 +43,7 @@ class Obstacle(object):
     def rectangle(self, x, y , width, height):
         for i in range(x, x + width):
             for j in range(y , y + height):
-                self.map[i][j] = 1
+                self.map[i][j] = 99
     
     def triangle(self, x, y, width):
         for i in range(x, x + width):
