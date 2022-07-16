@@ -2,6 +2,10 @@
 Quadtree represents a 2d grid-base world
 
 ## Description
+DynamicEnv.py: DynamicEnv manages all the agents and the airspace
+This manager can receive the move plan from all the agents, and approve the move for a specific time. 
+Meanwhile, this manager can publish all the air space control information. Reserve the airspace the agents should not enter.
+
 Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area.
 
 Tree.py: Tree save the root node which represents the whole world. Tree Class has functions that create all the nodes.
