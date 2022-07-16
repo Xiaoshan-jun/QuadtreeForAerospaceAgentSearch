@@ -21,8 +21,8 @@ class DynamicEnv(object):
         #check if the agent have path ready and let agent fly
         for agent in self.agentList:
             if agent.arrive:
-                fn = "history/agent" + str(agent.agentNumber) + '.csv'
-                np.savetxt(fn, agent.history, delimiter=',')
+                #fn = "history/agent" + str(agent.agentNumber) + '.csv'
+                #np.savetxt(fn, agent.history, delimiter=',')
                 self.agentList.remove(agent)                
             if agent.bestPath != False:
                 agent.move()
