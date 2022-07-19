@@ -8,7 +8,11 @@ Meanwhile, this manager can publish all the air space control information. Reser
 
 agent.py: agent has function divide the airspace into nodes with quadtree method. the agent can find a path to the destination with MRA*, reserve some space, and save the move plan.
 
-Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area.
+Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area and the number of available space.
+
+global reservedMap: it is a 2d-array save the map information. Agent, DynamicEnv, Node share a same array.
+
+
 
 
 ## Important function for search algorithm
