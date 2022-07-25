@@ -24,8 +24,8 @@ if __name__ == "__main__":
     maxDepth = 9 # 9 = 512*512
     reservedMap = obstacle(maxDepth)
     reservedMap = reservedMap.getMap()
-    start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
-    target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
+    start = np.genfromtxt('start9.csv', delimiter=',', dtype = int)
+    target = np.genfromtxt("target9.csv", delimiter=',', dtype = int)
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     agentList = []
@@ -49,7 +49,7 @@ if __name__ == "__main__":
                 agentList[i].searchAndPlot()
             dynamic_env.step()
     t1 = time.time() - t0
-
+    
 
 # plt.figure(figsize = (8, 8), dpi=100)
 # plt.axes()

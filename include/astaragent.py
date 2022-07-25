@@ -55,9 +55,9 @@ class astaragent(object):
             #check path movable
             moveable = True
             for n in self.bestPath:
-                if self.reservedMap[n] != self.agentNumber:
+                if self.reservedMap[n] == 100 or self.reservedMap[n] == 101:
                     moveable = False
-            if moveable:
+            if moveable and self.reservedMap[self.bestPath[0]] == self.agentNumber:
                 self.reservedMap[self.position] = 0
                 self.position = self.bestPath.pop(0)
                 self.history.append(self.position)

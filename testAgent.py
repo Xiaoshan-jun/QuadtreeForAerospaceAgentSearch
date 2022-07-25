@@ -18,7 +18,7 @@ import multiprocessing
 
 if __name__ == "__main__":
     #test parameter
-    NUM_AGENT = 10
+    NUM_AGENT = 20
     NUM_TESTING = 100
     RANDOM_POSITION = True
     maxDepth = 9 # 9 = 512*512
@@ -29,13 +29,15 @@ if __name__ == "__main__":
     beta = 0.75
     reservedMap = obstacle(maxDepth)
     reservedMap = reservedMap.getMap()
-    start = np.genfromtxt('start.csv', delimiter=',')
-    target = np.genfromtxt("target.csv", delimiter=',')
+    start = np.genfromtxt('start9.csv', delimiter=',', dtype = int)
+    target = np.genfromtxt("target9.csv", delimiter=',', dtype = int)
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     agentList = []
     for i in range(0, NUM_AGENT):
-        agentList.append(agent(i + 1, start[i], target[i], maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
+        current = tuple(start[i])
+        destination = tuple(target[i])
+        agentList.append(agent(i + 1, current, destination, maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
     #managerList = manager.list(agentList)
     dynamic_env = DynamicEnv(reservedMap, agentList)
     t0 = time.time()

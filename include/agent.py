@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct 22 22:23:00 2021
-agent has function picks the desired nodes in the tree, builds path graph, 
-defines the initial node, goal node, and does all the plotting.
+agent has function divide the airspace into nodes with quadtree method.
+the agent can find a path to the destination with MRA*, reserve some space, and save the move plan.
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """
@@ -11,142 +11,184 @@ from math import hypot
 import numpy as np
 from include.Node import Node
 from include.astar import search, PriorityQueue
+from include.astarastar import aStarSearch
 import time
 
 class agent(object): 
     
     def __init__(self, agentNumber, position, target, maxDepth, vertex, leafCapacity, reservedMap, eDistance = 2, alpha = 2, beta = 0.75):
         #definition: initial the agent
-        #Parameters: tree: search tree #position: the agent's current position #target: the agent's goal position 
-        #eDistance: the alpha in the determing function, decide the resolution #plotb: if plot the path
-        #Returns: None
-        self.agentNumber = agentNumber
-        self.root = Node(maxDepth, 0, vertex, pow(2,maxDepth), None, None, reservedMap, leafCapacity)
-        self.maxDepth = maxDepth
-        self.eDistance = eDistance #defalut 2 (alpha in the paper) 
+        #Parameters: agentNumber, position, target, maxDepth, vertex, leafCapacity, reservedMap, eDistance = 2, alpha = 2, beta = 0.75
+        self.agentNumber = agentNumber #the unique number of the agent.
+        self.root = Node(maxDepth, 0, vertex, pow(2,maxDepth), None, None, reservedMap, leafCapacity) #the root node
+        self.maxDepth = maxDepth #a map attribute
         self.position = position #current position of agent in (x, y)
         self.currentNode = None #current node where the agent locate
         self.currentNodeIndex = 0  #the index of currentNode in RequiredNode list. RequiredNode[currentNodeIndex] == currentNode
         self.target = target #current target position in (x, y)
         self.targetNode = None #target node where the destination locate
         self.targetNodeIndex = 1000000 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
-        self.RequiredNode = [] #a list of nodes that build the graph
-        self.bestPath = False #false means need to search, True means searching, 
-        self.alpha = alpha
-        self.beta = beta
+        self.RequiredNode = [] #a list of nodes that build the search graph
+        self.bestPath = False #false means need to search, True means searching, a list of the position means best path is found
+        self.eDistance = eDistance #parameter for the node open function
+        self.alpha = alpha #parameter for the node open function
+        self.beta = beta #parameter for the node open function
+        self.alphaboost = 10000000
         self.reservedMap = reservedMap
         self.searchtime = 0
-        self.history = []
-        self.arrive = False
-        self.loop = 0
+        self.history = [] #move history
+        self.arrive = False #a boolean if the agent reach the destination
+        self.loop = 0 #key value decide the alpha
+        self.MSA = False
+        self.bestPathtype = True
     
     def searchAndPlot(self):
-        #definition: find the required nodes.
-        #save the results of the search
-        time_start = time.time()
-        #print('searching the best path...')
-        t1 = time.time()
-        self.__findRequiredNode()
-        #print("node found, cost ", time.time() - t1, " s")
-        #self.__drawGraph()
-        self.arrive = self.ifArrive()
-        if self.loop > 15:
-            self.alpha = self.alpha + 0.5
-            self.loop = 0
-            print("agent stuck in a loop")
-        if self.arrive == False:
-            nodeList = self.getRequiredNode() #get the current opened node list
-            targetIndex = self.getTargetNodeIndex()
-            frontier = PriorityQueue(nodeList)
-            startIndex = self.getCurrentNodeIndex() #find the currentNode
-            startnode = nodeList[startIndex]
-            startnode.path = [startnode.mark]
-            startnode.g = 0
-            frontier.insert(startnode)
-            explored = []
-            path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
-            if path == False:
+        #1. find the required nodes.
+        #2. save the results of the search
+        #3. reserve some space
+        if self.MSA:
+            if self.alpha > 3.5:
+                self.MSA = False
+                self.alpha = self.alpha - 1
+                return self
+            if self.bestPath != False:
+                return self
+            time_start = time.time()
+            t1 = time.time()
+            #intelligent alpha modification
+            distToDestination = self.getDistance(self.position, self.target)
+            if distToDestination < 16:
+                self.MSA = False
+            if distToDestination < 50:
+                self.alpha = 2
+            if len(self.history) > 10:
+                if self.loop > 4 or self.position == self.history[-2]:
+                    self.alpha = self.alpha + 0.5
+                    self.beta = 0.75
+                    self.loop = 0
+                    self.alphaboost = 15
+                    print("agent stuck in a loop")  
+            if self.alphaboost > 0:
+                self.alphaboost = self.alphaboost- 1
+            else:
+                self.alpha = self.alpha - 0.5
+                self.alphaboost = 10000000
+            #find required nodes
+            self.__findRequiredNode()
+            #
+            #check if the agent arrive the destination
+            self.arrive = self.ifArrive()
+            #search
+            if self.arrive == False:
+                nodeList = self.getRequiredNode() #get the current opened node list
+                targetIndex = self.getTargetNodeIndex()
+                frontier = PriorityQueue(nodeList)
+                startIndex = self.getCurrentNodeIndex() #find the currentNode
+                print("agent: ", self.agentNumber)
+                startnode = nodeList[startIndex]
+                startnode.path = [startnode.mark]
+                startnode.g = 0
+                frontier.insert(startnode)
+                explored = []
+                path, cost, atimep= search(frontier, explored, targetIndex, nodeList)
+                #save search results
+                if path == False: #or cost > 500 + len(path):
+                    self.setBestPath(False)
+                    return False
                 self.setBestPath(path)
-                return False
-            self.setBestPath(path)
-            self.validStep = 0
-            for n, mark in enumerate(self.bestPath):
-                if self.RequiredNode[mark].size == 1:
-                    self.validStep = n
-                    self.RequiredNode[mark].reserve(self.agentNumber)
-                else:
-                    break
-        time_end = time.time()
-        self.searchtime += time_end - time_start
-        #self.plotTree()
-        return self
-
+                self.bestPathtype = True
+                #reserve
+                self.validStep = 0
+                for n, mark in enumerate(self.bestPath):
+                    if self.RequiredNode[mark].size == 1:
+                        self.validStep = n
+                        self.RequiredNode[mark].reserve(self.agentNumber)
+                    else:
+                        break
+            time_end = time.time()
+            self.searchtime += time_end - time_start
+            #self.plotTree()
+            return self
+        else:
+            #definition: find the required nodes.
+            #save the results of the search
+            time_start = time.time()
+            print("agent", str(self.agentNumber), " searching the best path with A*")
+            if self.bestPath != False:
+                return self
+            self.arrive = self.ifArrive()
+            if self.arrive == False:
+                self.position = (round(self.position[0]), round(self.position[1]))
+                self.target = (round(self.target[0]), round(self.target[1]))
+                actionList, path, nodeList, count, explored = aStarSearch(self.position, self.target, self.reservedMap, self.maxDepth)
+                if path == False:
+                    self.setBestPath(path)
+                    return False
+                self.setBestPath(path)
+                self.bestPathtype = False
+                #reserve
+                for n in path:
+                    self.reservedMap[n] = self.agentNumber
+            time_end = time.time()
+            if time_end - time_start > 1:
+                self.MSA = True
+            self.searchtime += time_end - time_start
+            #self.plotTree()
+            return self
     
     def move(self):
         #definition: move the agent to the new position
         #Parameters: step: how many steps the agent will go along the path
         #Returns: None
-        if self.arrive == False:
-            current = self.currentNode
-            current.cancel(self.agentNumber) #cancel the current position reservation
-            stepMark = self.bestPath[1]
-            step = self.RequiredNode[stepMark]
-            # if step.reservedMap[0][0] != self.agentNumber:
-            #     self.bestPath = False
-            #     return False
-            for i in range(self.validStep + 1):
-                mark = self.bestPath[i]
-                node = self.RequiredNode[mark]
-                node.cancel(self.agentNumber)
-            self.position = step.getCenter()
-            if self.position in self.history:
-                self.loop += 1
-            self.history.append(self.position)
-            print("agent", self.agentNumber, " has arrived ",self.position )
+        if self.ifArrive() == False:
+            if self.bestPathtype:
+                current = self.currentNode
+                current.cancel(self.agentNumber) #cancel the current position reservation
+                stepMark = self.bestPath.pop(1)
+                step = self.RequiredNode[stepMark]
+                if step.size  == 1:
+                    self.currentNode = step
+                    # if step.reservedMap[0][0] != self.agentNumber:
+                    #     self.bestPath = False
+                    #     return False
+                    # for i in range(self.validStep + 1):
+                    #     mark = self.bestPath[i]
+                    #     node = self.RequiredNode[mark]
+                    #     node.cancel(self.agentNumber)
+                    self.position = step.vertex
+                    self.arrive = self.ifArrive()
+                    if self.position in self.history:
+                        self.loop += 1
+                    self.history.append(self.position)
+                    print("agent", self.agentNumber, " has arrived ",self.position )
+                    stepMark = self.bestPath[1]
+                    step = self.RequiredNode[stepMark]
+                    if step.size != 1:
+                        self.bestPath = False
+                    
+                else:
+                    self.bestPath = False
+            else:
+                moveable = True
+                for n in self.bestPath:
+                    if self.reservedMap[n] == 100 or self.reservedMap[n] == 101:
+                        moveable = False
+                if moveable and self.reservedMap[self.bestPath[0]] == self.agentNumber:
+                    self.reservedMap[self.position] = 0
+                    self.position = self.bestPath.pop(0)
+                    self.arrive = self.ifArrive()
+                    self.history.append(self.position)
+                    print("agent", self.agentNumber, " has arrived ",self.position )
+                else:
+                    #cancel previous resercation
+                    for n in self.bestPath:
+                        if self.reservedMap[n] == self.agentNumber:
+                            self.reservedMap[n] = 0
+                    self.bestPath = False
+                    print("agent", self.agentNumber, " is blocked, redo search ")
         else:
             print("agent", self.agentNumber, " has arrived")
-        self.bestPath = False
-        
-    def ifArrive(self):
-        return self.currentNodeIndex == self.targetNodeIndex
-        
-    
-    def cancelReservation(self):
-        for mark in self.bestPath:
-            self.RequiredNode[mark].cancel(self.agentNumber)
-    
-    def plotBestPath(self):
-        #definition: plot the best path found by the search algorithm
-        #Parameters: None
-        #Returns: None
-        print("plotting the best path graph for path planing....")
-        
-        plt = self.__drawGraph() #load blocks map
-
-        
-        for mark in self.bestPath: #plot the path founded
-                node1 = self.RequiredNode[mark]
-                plt.gca().add_patch(node1.drawPathSquare())
-        node = self.RequiredNode[self.bestPath[-1]]
-        plt.gca().add_patch(node.drawTargetSquare())
-        #draw target
-        plt.show()
-        return None
-    
-    def setBestPath(self, bestPath):
-        #set the best path
-        self.bestPath = bestPath
-    
-    def plotTree(self):
-        plt.figure(figsize = (32, 32), dpi=100)
-        ax = plt.axes() 
-        for node in self.RequiredNode:
-            if node:
-                ax.add_patch(node.drawSquare())
-        plt.axis('scaled') 
-        plt.title('Reserved map') 
-        plt.show()
-
+        #self.bestPath = False
         
     def __findRequiredNode(self):
         #definition: find the desired nodes of the tree
@@ -197,6 +239,47 @@ class agent(object):
         #plt.show()
         #print(count)
     
+    def ifArrive(self):
+        return round(self.position[0]) == round(self.target[0]) and round(self.position[1]) == round(self.target[1]) 
+        
+    
+    def cancelReservation(self):
+        for mark in self.bestPath:
+            self.RequiredNode[mark].cancel(self.agentNumber)
+    
+    def plotBestPath(self):
+        #definition: plot the best path found by the search algorithm
+        #Parameters: None
+        #Returns: None
+        print("plotting the best path graph for path planing....")
+        
+        plt = self.__drawGraph() #load blocks map
+
+        
+        for mark in self.bestPath: #plot the path founded
+                node1 = self.RequiredNode[mark]
+                plt.gca().add_patch(node1.drawPathSquare())
+        node = self.RequiredNode[self.bestPath[-1]]
+        plt.gca().add_patch(node.drawTargetSquare())
+        #draw target
+        plt.show()
+        return None
+    
+    def setBestPath(self, bestPath):
+        #set the best path
+        self.bestPath = bestPath
+    
+    def plotTree(self):
+        plt.figure(figsize = (32, 32), dpi=100)
+        ax = plt.axes() 
+        for node in self.RequiredNode:
+            if node:
+                ax.add_patch(node.drawSquare())
+        plt.axis('scaled') 
+        plt.title('Reserved map') 
+        plt.show()
+
+    
     
     def __drawGraph(self):
         #definition: create the plt with required blocks
@@ -227,8 +310,6 @@ class agent(object):
     def getTargetNodeIndex(self):
         return self.targetNodeIndex
     
-    def setTree(self, tree):
-        self.tree = tree
 
     def getGraph(self):
         return self.graph
@@ -237,6 +318,7 @@ class agent(object):
         return self.RequiredNode
     
     def __checkInANode(self, position, node):
+        #important
         x = position[0]
         y = position[1]
         nxl, nyl, nxh, nyh = node.getVertex()
@@ -246,6 +328,7 @@ class agent(object):
             return False
     
     def getDistance(self, c1, c2):
+        #important
         x = c1[0] - c2[0]
         y = c1[1] - c2[1]
         return np.sqrt(x**2 + y**2)

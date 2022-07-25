@@ -9,7 +9,7 @@ import numpy as np
 class obstacle(object):
     def __init__(self, d):
         self.map = np.zeros((2**d,2**d))
-        #0 is free space, 99 means permnant obstacle, 100 means temprary obstacle
+        #0 is free space, 99 means permnant obstacle, 100 means temprary obstacle, 101 means regular flight
         if d == 9:
             #4 airport
             self.rectangle(50, 251, 10, 10)
