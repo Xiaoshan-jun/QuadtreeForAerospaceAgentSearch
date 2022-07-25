@@ -2,11 +2,18 @@
 Quadtree represents a 2d grid-base world
 
 ## Description
-Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area.
+DynamicEnv.py: DynamicEnv manages all the agents and the airspace
+This manager can receive the move plan from all the agents, and approve the move for a specific time. 
+Meanwhile, this manager can publish all the air space control information. Reserve the airspace the agents should not enter.
 
-Tree.py: Tree save the root node which represents the whole world. Tree Class has functions that create all the nodes.
+agent.py: agent has function divide the airspace into nodes with quadtree method. the agent can find a path to the destination with MRA*, reserve some space, and save the move plan.
 
-agent.py: agent pick the appropriate nodes and build the path graph as we want. The path graph shoule be able to further used by search algorithm.
+Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area and the number of available space.
+
+global reservedMap: it is a 2d-array save the map information. Agent, DynamicEnv, Node share a same array.
+
+
+
 
 ## Important function for search algorithm
 Tree(maxDepth,costMap, moveCostMap): Create the Tree. costMap/moveCostMap is predefined map property. maxDepth determined the size of the world. for example, if the size of world is 32*32, the maxDepth should be 5.
