@@ -16,9 +16,10 @@ import matplotlib.cm as cm
 import random
 import multiprocessing
 
+
 if __name__ == "__main__":
     #test parameter
-    NUM_AGENT = 20
+    NUM_AGENT = 10
     NUM_TESTING = 100
     RANDOM_POSITION = True
     maxDepth = 9 # 9 = 512*512
@@ -50,8 +51,6 @@ if __name__ == "__main__":
         if time.time() - ct > 1:
             print(time.time())
             ct = time.time()
-            for i in range(len(agentList)):
-                agentList[i].searchAndPlot()
             dynamic_env.step()
     t1 = time.time() - t0
     

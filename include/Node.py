@@ -40,7 +40,7 @@ class Node(object):
         self.vertex_se = [vertex[0] + size,  vertex[1]] #vertex_se is the position of the bottom right of the vertex
         self.vertex_ne = [vertex[0] + size,  vertex[1] + size] #vertex_ne is the position of the top right of the vertex
         self.size = size #size is the length of the side of square the node represents
-        self.cost = 1/(self.Cr + 0.0000001) #cost of reach this node, in this case, cost = number of obastacles and reserve
+        self.cost = 1/(self.Cr + 0.00001) #cost of reach this node, in this case, cost = number of obastacles and reserve
         self.g = 1000000 #cost to come = previous g + dis + cost to stop
         self.h = 1000000# approximate cost to target
         self.gh = 1000000 #cost to come + approximate cost to target
@@ -58,8 +58,8 @@ class Node(object):
             # 0 denotes SW(bottom-left), 1 denotes SE(bottom-right), 2 denotes NW(top-left), 3 denotes NE(top east)
             mid = int(self.size/2)
             self.children["SW"] = Node(self.maxDepth,  self.depth + 1, self.vertex, self.size/2, self, 0,                                                                              [i[0:mid] for i in self.reservedMap[0:mid]] ,self.leafCapacity)
-            self.children["SE"] = Node(self.maxDepth,  self.depth + 1, [self.vertex[0] + self.size/2, self.vertex[1]], self.size/2, self, 1,                           [i[mid:] for i in self.reservedMap[0:mid]] , self.leafCapacity)
-            self.children["NW"] = Node(self.maxDepth, self.depth + 1, [self.vertex[0] , self.vertex[1] + self.size/2], self.size/2, self, 2,                          [i[0:mid] for i in self.reservedMap[mid:]] ,  self.leafCapacity)
+            self.children["SE"] = Node(self.maxDepth,  self.depth + 1, [self.vertex[0] , self.vertex[1] + self.size/2], self.size/2, self, 1,                           [i[mid:] for i in self.reservedMap[0:mid]] , self.leafCapacity)
+            self.children["NW"] = Node(self.maxDepth, self.depth + 1, [self.vertex[0] + self.size/2 , self.vertex[1]], self.size/2, self, 2,                          [i[0:mid] for i in self.reservedMap[mid:]] ,  self.leafCapacity)
             self.children["NE"] = Node(self.maxDepth, self.depth + 1, [self.vertex[0] + self.size/2, self.vertex[1] + self.size/2], self.size/2, self, 3,             [i[mid:] for i in self.reservedMap[mid:]] , self.leafCapacity)
         return self.children["SW"], self.children["SE"], self.children["NW"], self.children["NE"]
 
@@ -85,10 +85,11 @@ class Node(object):
     
     def cancel(self, agentnumber):
         #print(self.reserveCode)
-        for i in self.reserveCode[agentnumber]:
-            x = i[0]
-            y = i[1]
-            self.reservedMap[x][y] = 0
+        if agentnumber in self.reserveCode:
+            for i in self.reserveCode[agentnumber]:
+                x = i[0]
+                y = i[1]
+                self.reservedMap[x][y] = 0
             
 #get move cost for desired direction. #0: NW, 1:N, 2: NE, 3:W, 4:E, 5:SW 6:S,7:SE
     def getMoveCost(self, i):

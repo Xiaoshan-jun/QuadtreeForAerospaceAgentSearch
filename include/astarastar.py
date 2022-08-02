@@ -100,8 +100,8 @@ def aStarSearch(xI,xG, reservedMap ,maxDepth,heuristic='euclidean'):
             # check collision
             newposition = (currentposition[0] + a[0], currentposition[1] + a[1])
             if collisionCheck(reservedMap, newposition, maxDepth) == False:
-                if reservedMap[newposition[0]][newposition[1]] == 100 or reservedMap[newposition[0]][newposition[1]] == 101:
-                    newg = current.g + 1000
+                if reservedMap[newposition[0]][newposition[1]] != 0:
+                    newg = current.g + 10000 + getCostOfActionsEuclideanDistance(a)
                 else:
                     newg = current.g + getCostOfActionsEuclideanDistance(a)
                 if heuristic == 'manhattan':

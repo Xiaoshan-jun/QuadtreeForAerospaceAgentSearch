@@ -18,7 +18,7 @@ import multiprocessing
 
 if __name__ == "__main__":
     #test parameter
-    NUM_AGENT = 10
+    NUM_AGENT = 1
     NUM_TESTING = 100
     RANDOM_POSITION = True
     maxDepth = 9 # 9 = 512*512

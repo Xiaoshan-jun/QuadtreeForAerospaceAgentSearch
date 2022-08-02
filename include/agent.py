@@ -40,7 +40,7 @@ class agent(object):
         self.arrive = False #a boolean if the agent reach the destination
         self.loop = 0 #key value decide the alpha
         self.MSA = False
-        self.bestPathtype = True
+        self.bestPathtype = True #false means A*
     
     def searchAndPlot(self):
         #1. find the required nodes.
@@ -74,6 +74,8 @@ class agent(object):
                 self.alpha = self.alpha - 0.5
                 self.alphaboost = 10000000
             #find required nodes
+            if self.alpha < 2:
+                self.alpha = 2
             self.__findRequiredNode()
             #
             #check if the agent arrive the destination
@@ -110,12 +112,11 @@ class agent(object):
             #self.plotTree()
             return self
         else:
-            #definition: find the required nodes.
-            #save the results of the search
+            #Astar
             time_start = time.time()
-            print("agent", str(self.agentNumber), " searching the best path with A*")
             if self.bestPath != False:
                 return self
+            print("agent", str(self.agentNumber), " searching the best path with A*")
             self.arrive = self.ifArrive()
             if self.arrive == False:
                 self.position = (round(self.position[0]), round(self.position[1]))
@@ -136,60 +137,82 @@ class agent(object):
             #self.plotTree()
             return self
     
-    def move(self):
+    def move(self, t):
         #definition: move the agent to the new position
         #Parameters: step: how many steps the agent will go along the path
         #Returns: None
         if self.ifArrive() == False:
-            if self.bestPathtype:
-                current = self.currentNode
-                current.cancel(self.agentNumber) #cancel the current position reservation
-                stepMark = self.bestPath.pop(1)
-                step = self.RequiredNode[stepMark]
-                if step.size  == 1:
-                    self.currentNode = step
-                    # if step.reservedMap[0][0] != self.agentNumber:
-                    #     self.bestPath = False
-                    #     return False
-                    # for i in range(self.validStep + 1):
-                    #     mark = self.bestPath[i]
-                    #     node = self.RequiredNode[mark]
-                    #     node.cancel(self.agentNumber)
-                    self.position = step.vertex
-                    self.arrive = self.ifArrive()
-                    if self.position in self.history:
-                        self.loop += 1
-                    self.history.append(self.position)
-                    print("agent", self.agentNumber, " has arrived ",self.position )
-                    stepMark = self.bestPath[1]
+            if self.bestPath != False:
+                if self.bestPathtype: #MRA
+                    current = self.currentNode
+                    current.cancel(self.agentNumber) #cancel the current position reservation
+                    stepMark = self.bestPath.pop(1)
                     step = self.RequiredNode[stepMark]
-                    if step.size != 1:
+                    if step.size  == 1:
+                        if step.reservedMap[0][0] != self.agentNumber:
+                            print("agent", self.agentNumber, " is blocked, redo search ")
+                            for mark in self.bestPath:
+                                node = self.RequiredNode[mark]
+                                if node.size == 1:
+                                    node.cancel(self.agentNumber)
+                                else:
+                                    break
+                            self.bestPath = False
+                        else:
+                            self.currentNode = step
+                            self.position = step.vertex
+                            self.arrive = self.ifArrive()
+                            if self.position in self.history:
+                                self.loop += 1
+                            print("agent", self.agentNumber, " has arrived ",self.position )
+                            stepMark = self.bestPath[1]
+                            step = self.RequiredNode[stepMark]
+                            
+                            if step.size != 1:
+                                current = self.currentNode
+                                current.cancel(self.agentNumber) #cancel the current position reservation
+                                print("agent", self.agentNumber, " out of reservation, redo search ")
+                                for mark in self.bestPath:
+                                    node = self.RequiredNode[mark]
+                                    if node.size  == 1:
+                                        node.cancel(self.agentNumber)
+                                    else:
+                                        break
+                                self.bestPath = False
+                    else:
+                        for mark in self.bestPath:
+                            node = self.RequiredNode[mark]
+                            if node.size == 1:
+                                node.cancel(self.agentNumber)
+                            else:
+                                break
                         self.bestPath = False
-                    
-                else:
-                    self.bestPath = False
-            else:
-                moveable = True
-                for n in self.bestPath:
-                    if self.reservedMap[n] == 100 or self.reservedMap[n] == 101:
-                        moveable = False
-                if moveable and self.reservedMap[self.bestPath[0]] == self.agentNumber:
-                    self.reservedMap[self.position] = 0
-                    self.position = self.bestPath.pop(0)
-                    self.arrive = self.ifArrive()
-                    self.history.append(self.position)
-                    print("agent", self.agentNumber, " has arrived ",self.position )
-                else:
-                    #cancel previous resercation
+                        print("agent", self.agentNumber, " out of reservation, redo search ")
+                else: #a
+                    moveable = True
                     for n in self.bestPath:
-                        if self.reservedMap[n] == self.agentNumber:
-                            self.reservedMap[n] = 0
-                    self.bestPath = False
-                    print("agent", self.agentNumber, " is blocked, redo search ")
+                        if self.reservedMap[n] == 100 or self.reservedMap[n] == 101:
+                            moveable = False
+                    if moveable and self.reservedMap[self.bestPath[0]] == self.agentNumber :
+                        self.reservedMap[self.position] = 0
+                        self.position = self.bestPath.pop(0)
+                        #self.reservedMap[self.position] = 0
+                        self.arrive = self.ifArrive()
+                        print("agent", self.agentNumber, " has arrived ",self.position )
+                    else:
+                        #cancel previous resercation
+                        for n in self.bestPath:
+                            if self.reservedMap[n] == self.agentNumber:
+                                self.reservedMap[n] = 0
+                        self.bestPath = False
+                        print("agent", self.agentNumber, " is blocked, redo search ")
         else:
             print("agent", self.agentNumber, " has arrived")
         #self.bestPath = False
         
+    def record(self, t):
+        self.history.append((t, self.position[0], self.position[1]))
+    
     def __findRequiredNode(self):
         #definition: find the desired nodes of the tree
         #Parameters: None
@@ -232,7 +255,7 @@ class agent(object):
                         important = True
                     if dist2 <= 1.5 * (self.alpha**(node.getDepthFromBottom())):
                         important = True
-                    if important or node.depth < 3 or node.Cr > self.beta: #* np.log(node.depth):
+                    if important or node.depth < 3 or node.Cr > self.beta or node.size == 1: #* np.log(node.depth):
                         node.setMark(len(self.RequiredNode))
                         self.RequiredNode.append(node)
         #plt = self.__drawGraph()

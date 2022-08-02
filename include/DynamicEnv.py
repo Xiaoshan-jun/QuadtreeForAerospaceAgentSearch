@@ -9,6 +9,7 @@ Meanwhile, this manager can publish all the air space control information. Reser
 import multiprocessing
 import random
 import numpy as np
+random.seed(1)
 
 class DynamicEnv(object):
     def __init__(self, reservedMap, agentList):
@@ -22,31 +23,28 @@ class DynamicEnv(object):
         #fn = "history/time" + str(self.t) + '.csv'
         #np.savetxt(fn, self.reservedMap, delimiter=',')
         #check if the agent have path ready and let agent fly
-        for agent in self.agentList:
-            if agent.arrive:
-                fn = "history/agent" + str(agent.agentNumber) + '.csv'
-                np.savetxt(fn, agent.history, delimiter=',')
-                self.agentList.remove(agent)                
-            if agent.bestPath != False:
-                agent.move()
-        #update reserved map according to the air space control
-        
         if self.controltime == 0:
             self.airspaceControl()
-            fn = "history/reservedMap" + str(self.t + 1) + '.csv'
-            np.savetxt(fn, self.reservedMap, delimiter=',')
         else:
             self.controltime = self.controltime - 1
         if self.t % 200  == 0:
             self.regularAirplane()
-            fn = "history/reservedMap" + str(self.t + 1) + '.csv'
-            np.savetxt(fn, self.reservedMap, delimiter=',')
         if (self.t - 100)% 200  == 0:
             self.regularAirplanePause()
-            fn = "history/reservedMap" + str(self.t + 1) + '.csv'
-            np.savetxt(fn, self.reservedMap, delimiter=',')
-        #
+        for agent in list(self.agentList):
+            if agent.arrive:
+                fn = "history/agent" + str(agent.agentNumber) + '.csv'
+                np.savetxt(fn, agent.history, delimiter=',')
+                self.agentList.remove(agent)                
+            else:
+                agent.searchAndPlot()
+                agent.move(self.t + 1)
+                agent.record(self.t + 1)
+        #update reserved map according to the air space control
+        
         print("time: ", self.t)
+        fn = "history/reservedMap" + str(self.t + 1) + '.csv'
+        np.savetxt(fn, self.reservedMap, delimiter=',')
         self.t = self.t + 1
         
     def airspaceControl(self):
@@ -57,7 +55,7 @@ class DynamicEnv(object):
                 if self.reservedMap[i][j] == 100:
                     self.reservedMap[i][j] = 0
         #random airspace control
-        random.seed(self.t)
+        
         #how many air space control event        
         N = random.randint(0, 12)
         for i in range(N):
