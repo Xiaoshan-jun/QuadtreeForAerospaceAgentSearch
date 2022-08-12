@@ -80,6 +80,10 @@ class Node(object):
         if self.reservedMap[x][y] == 0:
             self.reservedMap[x][y] = agentnumber
             self.reserveCode[agentnumber].append([x,y])
+        elif self.reservedMap[x][y] == 100:
+            self.reservedMap[x][y] = agentnumber
+            self.reserveCode[agentnumber].append([x,y])
+            
     
                 
     

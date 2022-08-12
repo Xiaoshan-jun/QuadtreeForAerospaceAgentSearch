@@ -27,8 +27,8 @@ while len(start) < 1000:
             break
     start.append((x, y))
     target.append((x2, y2))
-np.savetxt('start9.csv', start, delimiter=',')
-np.savetxt('target9.csv', target, delimiter=',')
+np.savetxt('start.csv', start, delimiter=',')
+np.savetxt('target.csv', target, delimiter=',')
 
 
 

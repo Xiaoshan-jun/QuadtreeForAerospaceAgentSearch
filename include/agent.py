@@ -46,11 +46,12 @@ class agent(object):
         #1. find the required nodes.
         #2. save the results of the search
         #3. reserve some space
+        #self.MSA = True
         if self.MSA:
-            if self.alpha > 3.5:
-                self.MSA = False
-                self.alpha = self.alpha - 1
-                return self
+            # if self.alpha > 3.5:
+            #     self.MSA = False
+            #     self.alpha = self.alpha - 1
+            #     return self
             if self.bestPath != False:
                 return self
             time_start = time.time()
@@ -59,8 +60,6 @@ class agent(object):
             distToDestination = self.getDistance(self.position, self.target)
             if distToDestination < 16:
                 self.MSA = False
-            if distToDestination < 50:
-                self.alpha = 2
             if len(self.history) > 10:
                 if self.loop > 4 or self.position == self.history[-2]:
                     self.alpha = self.alpha + 0.5
@@ -165,20 +164,33 @@ class agent(object):
                             if self.position in self.history:
                                 self.loop += 1
                             print("agent", self.agentNumber, " has arrived ",self.position )
-                            stepMark = self.bestPath[1]
-                            step = self.RequiredNode[stepMark]
+                            if len(self.bestPath) > 1:
+                                stepMark = self.bestPath[1]
+                                step = self.RequiredNode[stepMark]
                             
-                            if step.size != 1:
-                                current = self.currentNode
-                                current.cancel(self.agentNumber) #cancel the current position reservation
-                                print("agent", self.agentNumber, " out of reservation, redo search ")
-                                for mark in self.bestPath:
-                                    node = self.RequiredNode[mark]
-                                    if node.size  == 1:
-                                        node.cancel(self.agentNumber)
-                                    else:
-                                        break
-                                self.bestPath = False
+                                if step.size != 1:
+                                    current = self.currentNode
+                                    current.cancel(self.agentNumber) #cancel the current position reservation
+                                    print("agent", self.agentNumber, " out of reservation, redo search ")
+                                    for mark in self.bestPath:
+                                        node = self.RequiredNode[mark]
+                                        if node.size  == 1:
+                                            node.cancel(self.agentNumber)
+                                        else:
+                                            break
+                                    self.bestPath = False
+                            else:
+                                    current = self.currentNode
+                                    current.cancel(self.agentNumber) #cancel the current position reservation
+                                    print("agent", self.agentNumber, " out of reservation, redo search ")
+                                    for mark in self.bestPath:
+                                        node = self.RequiredNode[mark]
+                                        if node.size  == 1:
+                                            node.cancel(self.agentNumber)
+                                        else:
+                                            break
+                                    self.bestPath = False
+                                
                     else:
                         for mark in self.bestPath:
                             node = self.RequiredNode[mark]

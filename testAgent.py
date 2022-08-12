@@ -47,12 +47,13 @@ if __name__ == "__main__":
     # for Agent in agentList:
     #     p = multiprocessing.Process(target = Agent.searchAndPlot)
     # processes.append(p)
-    while len(agentList) > 0:
+    while len(agentList) > 1:
         if time.time() - ct > 1:
             print(time.time())
             ct = time.time()
             dynamic_env.step()
     t1 = time.time() - t0
+    print(t1)
     
     
 
