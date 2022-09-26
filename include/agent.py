@@ -39,19 +39,19 @@ class agent(object):
         self.history = [] #move history
         self.arrive = False #a boolean if the agent reach the destination
         self.loop = 0 #key value decide the alpha
-        self.MSA = False
+        self.MSA = True
         self.bestPathtype = True #false means A*
     
     def searchAndPlot(self):
         #1. find the required nodes.
         #2. save the results of the search
         #3. reserve some space
-        #self.MSA = True
+        self.MSA = True
         if self.MSA:
-            # if self.alpha > 3.5:
-            #     self.MSA = False
-            #     self.alpha = self.alpha - 1
-            #     return self
+            if self.alpha > 3.0:
+                self.MSA = False
+                self.alpha = self.alpha - 1
+                return self
             if self.bestPath != False:
                 return self
             time_start = time.time()
@@ -62,11 +62,11 @@ class agent(object):
                 self.MSA = False
             if len(self.history) > 10:
                 if self.loop > 4 or self.position == self.history[-2]:
-                    self.alpha = self.alpha + 0.5
+                    self.alpha = self.alpha + 0.25
                     self.beta = 0.75
                     self.loop = 0
                     self.alphaboost = 15
-                    print("agent stuck in a loop")  
+                    print("agent stuck in a loop current alpha =", self.alpha )  
             if self.alphaboost > 0:
                 self.alphaboost = self.alphaboost- 1
             else:
@@ -223,7 +223,7 @@ class agent(object):
         #self.bestPath = False
         
     def record(self, t):
-        self.history.append((t, self.position[0], self.position[1]))
+        self.history.append(self.position)
     
     def __findRequiredNode(self):
         #definition: find the desired nodes of the tree

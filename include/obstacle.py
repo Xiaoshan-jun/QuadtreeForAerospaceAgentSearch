@@ -8,7 +8,7 @@ import numpy as np
 
 class obstacle(object):
     def __init__(self, d):
-        self.map = np.zeros((2**d,2**d))
+        self.map = np.zeros((2**9,2**9))
         #0 is free space, 99 means permnant obstacle, 100 means temprary obstacle, 101 means regular flight
         if d == 9:
             #4 airport
@@ -16,15 +16,19 @@ class obstacle(object):
             self.rectangle(452, 251, 10, 10)
             self.rectangle(251, 50, 10, 10)
             self.rectangle(251, 452, 10, 10)
-            # self.rectangle(100, 200, 100, 1)
-            # self.rectangle(100, 300, 100, 1)
-            # self.rectangle(300, 200, 100, 1)
-            # self.rectangle(300, 300, 100, 1)
-            # self.rectangle(300, 100, 1, 100)
-            # self.rectangle(300, 300, 1, 100)
-            # self.rectangle(200, 100, 1, 100)
-            # self.rectangle(200, 300, 1, 100)
-
+        if d == 0:
+            self.rectangle(50, 251, 10, 10)
+            self.rectangle(452, 251, 10, 10)
+            self.rectangle(251, 50, 10, 10)
+            self.rectangle(251, 452, 10, 10)
+            self.rectangle(100, 200, 100, 1)
+            self.rectangle(100, 300, 100, 1)
+            self.rectangle(300, 200, 100, 1)
+            self.rectangle(300, 300, 100, 1)
+            self.rectangle(300, 100, 1, 100)
+            self.rectangle(300, 300, 1, 100)
+            self.rectangle(200, 100, 1, 100)
+            self.rectangle(200, 300, 1, 100)
 
         
     def getMap(self):
