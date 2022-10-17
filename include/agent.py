@@ -46,11 +46,12 @@ class agent(object):
         #1. find the required nodes.
         #2. save the results of the search
         #3. reserve some space
-        self.MSA = True
+        #self.MSA = True
         if self.MSA:
-            if self.alpha > 3.0:
+            if self.alpha > 2.5:
                 self.MSA = False
-                self.alpha = self.alpha - 1
+                self.alpha = 2
+                self.beta = 0.25
                 return self
             if self.bestPath != False:
                 return self
@@ -58,24 +59,25 @@ class agent(object):
             t1 = time.time()
             #intelligent alpha modification
             distToDestination = self.getDistance(self.position, self.target)
-            if distToDestination < 16:
+            if distToDestination < 30:
                 self.MSA = False
             if len(self.history) > 10:
                 if self.loop > 4 or self.position == self.history[-2]:
                     self.alpha = self.alpha + 0.25
-                    self.beta = 0.75
+                    self.beta = self.beta + 0.25
                     self.loop = 0
                     self.alphaboost = 15
                     print("agent stuck in a loop current alpha =", self.alpha )  
             if self.alphaboost > 0:
                 self.alphaboost = self.alphaboost- 1
             else:
-                self.alpha = self.alpha - 0.5
+                self.alpha = self.alpha - 0.25
+                self.beta = self.beta - 0.25
                 self.alphaboost = 10000000
             #find required nodes
             if self.alpha < 2:
                 self.alpha = 2
-            self.__findRequiredNode()
+            self.findRequiredNode()
             #
             #check if the agent arrive the destination
             self.arrive = self.ifArrive()
@@ -130,7 +132,7 @@ class agent(object):
                 for n in path:
                     self.reservedMap[n] = self.agentNumber
             time_end = time.time()
-            if time_end - time_start > 1:
+            if time_end - time_start > 5:
                 self.MSA = True
             self.searchtime += time_end - time_start
             #self.plotTree()
@@ -225,7 +227,7 @@ class agent(object):
     def record(self, t):
         self.history.append(self.position)
     
-    def __findRequiredNode(self):
+    def findRequiredNode(self):
         #definition: find the desired nodes of the tree
         #Parameters: None
         #Returns: None
@@ -270,7 +272,7 @@ class agent(object):
                     if important or node.depth < 3 or node.Cr > self.beta or node.size == 1: #* np.log(node.depth):
                         node.setMark(len(self.RequiredNode))
                         self.RequiredNode.append(node)
-        #plt = self.__drawGraph()
+        #plt = self.drawGraph()
         #plt.show()
         #print(count)
     
@@ -288,15 +290,16 @@ class agent(object):
         #Returns: None
         print("plotting the best path graph for path planing....")
         
-        plt = self.__drawGraph() #load blocks map
+        plt = self.drawGraph() #load blocks map
 
         
-        for mark in self.bestPath: #plot the path founded
+        for mark in self.bestPath[1:]: #plot the path founded
                 node1 = self.RequiredNode[mark]
                 plt.gca().add_patch(node1.drawPathSquare())
         node = self.RequiredNode[self.bestPath[-1]]
         plt.gca().add_patch(node.drawTargetSquare())
         #draw target
+        #plt.title('reach destination ')
         plt.show()
         return None
     
@@ -304,19 +307,9 @@ class agent(object):
         #set the best path
         self.bestPath = bestPath
     
-    def plotTree(self):
-        plt.figure(figsize = (32, 32), dpi=100)
-        ax = plt.axes() 
-        for node in self.RequiredNode:
-            if node:
-                ax.add_patch(node.drawSquare())
-        plt.axis('scaled') 
-        plt.title('Reserved map') 
-        plt.show()
-
     
     
-    def __drawGraph(self):
+    def drawGraph(self):
         #definition: create the plt with required blocks
         #Parameters: None
         #Returns: plt
@@ -325,7 +318,7 @@ class agent(object):
         for node in self.RequiredNode:
             plt.gca().add_patch(node.drawSquare())
         plt.gca().add_patch(self.getCurrentNode().drawAgent())
-        #plt.gca().add_patch(self.getTargetNode().drawTarget())
+        plt.gca().add_patch(self.getTargetNode().drawTarget())
         plt.axis('scaled')
         plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
         return plt

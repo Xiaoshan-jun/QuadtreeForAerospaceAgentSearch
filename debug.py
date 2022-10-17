@@ -11,7 +11,7 @@ from include.DynamicEnv import DynamicEnv
 import time
 import numpy as np
 
-reservedMap = obstacle(0)
+reservedMap = obstacle(9, 1)
 reservedMap = reservedMap.getMap()
 NUM_AGENT = 10
 NUM_TESTING = 100
@@ -30,14 +30,10 @@ for i in range(0, NUM_AGENT):
     destination = tuple(target[i])
     agentList.append(agent(i + 1, current, destination, maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
 dynamic_env = DynamicEnv(reservedMap, agentList)
-dynamic_env.t = 1
-dynamic_env.airspaceControl()
-dynamic_env.regularAirplane()
+for i in range(300):
+    dynamic_env.step()
 for agents in agentList:
-    agents.searchAndPlot()
-    agents.move(1)
-    agents.record(1)
     fn = "figure/agent" + str(agents.agentNumber) + '.csv'
     np.savetxt(fn, agents.history, delimiter=',')
-fn = "figure/MSAstarStressed.csv"
+fn = "figure/hybridStressed.csv"
 np.savetxt(fn, reservedMap, delimiter=',')

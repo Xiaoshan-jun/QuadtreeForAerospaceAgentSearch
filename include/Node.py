@@ -128,7 +128,7 @@ class Node(object):
         min_val = 0
         max_val = 1
         norm = matplotlib.colors.Normalize(min_val, max_val)
-        color_i = my_cmap(norm(self.Cr))
+        color_i = my_cmap(norm(1 - self.Cr))
         square = plt.Rectangle(self.vertex, self.size, self.size, fc=color_i,ec="green", lw = 3)
         return square
     

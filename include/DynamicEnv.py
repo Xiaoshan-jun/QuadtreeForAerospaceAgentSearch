@@ -16,8 +16,10 @@ class DynamicEnv(object):
         self.t = 0
         self.reservedMap = reservedMap
         self.agentList = agentList
-        self.regularAirplane()
+        #self.regularAirplane()
         self.controltime = 0
+        self.totalDistance = 0
+        self.left = 0
         
     def step(self):
         #fn = "history/time" + str(self.t) + '.csv'
@@ -33,8 +35,9 @@ class DynamicEnv(object):
             self.regularAirplanePause()
         for agent in list(self.agentList):
             if agent.arrive:
-                fn = "history/agent" + str(agent.agentNumber) + '.csv'
-                np.savetxt(fn, agent.history, delimiter=',')
+                #fn = "history/agent" + str(agent.agentNumber) + '.csv'
+                #np.savetxt(fn, agent.history, delimiter=',')
+                self.totalDistance += len(agent.history)
                 self.agentList.remove(agent)                
             else:
                 agent.searchAndPlot()
@@ -43,10 +46,14 @@ class DynamicEnv(object):
         #update reserved map according to the air space control
         
         print("time: ", self.t)
-        fn = "history/reservedMap" + str(self.t + 1) + '.csv'
-        np.savetxt(fn, self.reservedMap, delimiter=',')
+        #fn = "history/reservedMap" + str(self.t + 1) + '.csv'
+        #np.savetxt(fn, self.reservedMap, delimiter=',')
         self.t = self.t + 1
-        
+        if self.t == 1500:
+            self.left = len(self.agentList)
+            for agent in list(self.agentList):
+                self.totalDistance += len(agent.history)
+                self.agentList.remove(agent)
     def airspaceControl(self):
         #clear previous airspaceControl
         self.controltime = random.randint(15, 45)
@@ -59,16 +66,20 @@ class DynamicEnv(object):
         #how many air space control event        
         N = random.randint(0, 12)
         for i in range(N):
-            x = random.randint(10, 500)
-            y = random.randint(10, 500)
-            width = random.randint(10, 50)
-            length = random.randint(10, 50)
+            x = random.randint(10, len(self.reservedMap))
+            y = random.randint(10, len(self.reservedMap))
+            width = random.randint(len(self.reservedMap)//50, len(self.reservedMap)//10)
+            length = random.randint(len(self.reservedMap)//50, len(self.reservedMap)//10)
             for i in range(x, x + width):
                 for j in range(y , y + length):
                     if i < len(self.reservedMap) and j < len(self.reservedMap):
                         if self.reservedMap[i][j] != 99:
                             self.reservedMap[i][j] = 100
         #regular 
+        
+    def updateMapOnly(self):
+        self.airspaceControl()
+    
     def regularAirplane(self):
         for i in range(60, 452):
             self.reservedMap[i][251] = 101
