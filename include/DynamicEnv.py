@@ -49,7 +49,7 @@ class DynamicEnv(object):
         #fn = "history/reservedMap" + str(self.t + 1) + '.csv'
         #np.savetxt(fn, self.reservedMap, delimiter=',')
         self.t = self.t + 1
-        if self.t == 1500:
+        if self.t == 2000:
             self.left = len(self.agentList)
             for agent in list(self.agentList):
                 self.totalDistance += len(agent.history)
