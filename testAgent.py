@@ -23,7 +23,7 @@ if __name__ == "__main__":
     NUM_TESTING = 5
     RANDOM_POSITION = True
     maxDepth = 9 
-    maps = 1 # 0 means normal, 1 means hard map
+    maps = 2 # 0 means normal, 1 means hard map ,2 means random
     vertex = [0, 0]
     leafCapacity = 1
     a = (1, 1)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     iterations = []
     fail = []
     for j in range(NUM_TESTING):
-        reservedMap = obstacle(maxDepth, maps)
+        reservedMap = obstacle(maxDepth, maps, j)
         reservedMap = reservedMap.getMap()
         agentList = []
         straightDistance = 0
@@ -47,7 +47,7 @@ if __name__ == "__main__":
             sd = abs(destination[0] - current[0]) + abs(destination[1] - current[1])
             agentList.append(agent(i + 1, current, destination, maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
             straightDistance += sd
-        dynamic_env = DynamicEnv(reservedMap, agentList)
+        dynamic_env = DynamicEnv(reservedMap, agentList, j)
         t0 = time.time()
         ct = time.time() 
 

@@ -46,7 +46,7 @@ class agent(object):
         #1. find the required nodes.
         #2. save the results of the search
         #3. reserve some space
-        #self.MSA = True
+        self.MSA = True
         if self.MSA:
             time_start = time.time()
             if self.bestPath != False:
