@@ -19,8 +19,8 @@ import multiprocessing
 
 if __name__ == "__main__":
     #test parameter
-    NUM_AGENT = 10
-    NUM_TESTING = 50
+    NUM_AGENT = 20
+    NUM_TESTING = 5
     RANDOM_POSITION = True
     maxDepth = 9 
     maps = 1 # 0 means normal, 1 means hard map
