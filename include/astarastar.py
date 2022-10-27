@@ -22,7 +22,7 @@ class PriorityQueue:
         self.NodeList = NodeList
         
     def remove(self, p):
-        self._index = -1
+        self._index -= 1
         self.queue.remove(p)
         
     def insert(self, node):
