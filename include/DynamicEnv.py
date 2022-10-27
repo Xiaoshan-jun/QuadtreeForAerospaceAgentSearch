@@ -9,10 +9,10 @@ Meanwhile, this manager can publish all the air space control information. Reser
 import multiprocessing
 import random
 import numpy as np
-random.seed(1)
+
 
 class DynamicEnv(object):
-    def __init__(self, reservedMap, agentList):
+    def __init__(self, reservedMap, agentList, j):
         self.t = 0
         self.reservedMap = reservedMap
         self.agentList = agentList
@@ -20,6 +20,7 @@ class DynamicEnv(object):
         self.controltime = 0
         self.totalDistance = 0
         self.left = 0
+        random.seed(j)
         
     def step(self):
         #fn = "history/time" + str(self.t) + '.csv'

@@ -46,33 +46,33 @@ class agent(object):
         #1. find the required nodes.
         #2. save the results of the search
         #3. reserve some space
-        #self.MSA = True
+        self.MSA = True
         if self.MSA:
             time_start = time.time()
             if self.bestPath != False:
                 return self
             #intelligent alpha modification
-            if self.alpha > 2.5:
-                self.MSA = False
-                self.alpha = 2
-                self.beta = 0.25
-                return self
-            distToDestination = self.getDistance(self.position, self.target)
-            if distToDestination < 30:
-                self.MSA = False
-            if len(self.history) > 10:
-                if self.loop > 4 or self.position == self.history[-2]:
-                    self.alpha = self.alpha + 0.25
-                    self.beta = self.beta + 0.25
-                    self.loop = 0
-                    self.alphaboost = 15
-                    print("agent stuck in a loop current alpha =", self.alpha )  
-            if self.alphaboost > 0:
-                self.alphaboost = self.alphaboost- 1
-            else:
-                self.alpha = self.alpha - 0.25
-                self.beta = self.beta - 0.25
-                self.alphaboost = 10000000
+            # if self.alpha > 2.5:
+            #     self.MSA = False
+            #     self.alpha = 2
+            #     self.beta = 0.25
+            #     return self
+            # distToDestination = self.getDistance(self.position, self.target)
+            # if distToDestination < 30:
+            #     self.MSA = False
+            # if len(self.history) > 10:
+            #     if self.loop > 4 or self.position == self.history[-2]:
+            #         self.alpha = self.alpha + 0.25
+            #         self.beta = self.beta + 0.25
+            #         self.loop = 0
+            #         self.alphaboost = 15
+            #         print("agent stuck in a loop current alpha =", self.alpha )  
+            # if self.alphaboost > 0:
+            #     self.alphaboost = self.alphaboost- 1
+            # else:
+            #     self.alpha = self.alpha - 0.25
+            #     self.beta = self.beta - 0.25
+            #     self.alphaboost = 10000000
             #find required nodes
             if self.alpha < 2:
                 self.alpha = 2
