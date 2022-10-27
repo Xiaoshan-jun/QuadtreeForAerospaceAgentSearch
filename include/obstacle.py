@@ -32,7 +32,7 @@ class obstacle(object):
                 self.rectangle(200, 100, 1, 100)
                 self.rectangle(200, 300, 1, 100)
             if o== 2:
-                N = random.randint(12, 18)
+                N = random.randint(18, 30)
                 for i in range(N):
                     x = random.randint(0, len(self.map))
                     y = random.randint(0, len(self.map))
@@ -42,7 +42,7 @@ class obstacle(object):
                     length2 = random.randint(length//7, length//3)
                     self.plusbuilding(x, y, width, length, width2, length2,  99)
             
-                N = random.randint(12, 18)
+                N = random.randint(18, 30)
                 for i in range(N):
                     x = random.randint(0, len(self.map))
                     y = random.randint(0, len(self.map))

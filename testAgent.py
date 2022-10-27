@@ -17,10 +17,16 @@ import random
 import multiprocessing
 
 
+def getDistance(c1, c2):
+    #important
+    x = c1[0] - c2[0]
+    y = c1[1] - c2[1]
+    return np.sqrt(x**2 + y**2)
+
 if __name__ == "__main__":
     #test parameter
-    NUM_AGENT = 20
-    NUM_TESTING = 5
+    NUM_AGENT = 50
+    NUM_TESTING = 1
     RANDOM_POSITION = True
     maxDepth = 9 
     maps = 2 # 0 means normal, 1 means hard map ,2 means random
@@ -30,15 +36,28 @@ if __name__ == "__main__":
     alpha = 2
     beta = 0.75
     #start9 means normal, start means hard
-    start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
-    target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
+    # start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
+    # target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
     t = [] #record process time
     dr = [] #record travel distance/manhatton distance
     iterations = []
     fail = []
     for j in range(NUM_TESTING):
+        random.seed(j)
         reservedMap = obstacle(maxDepth, maps, j)
         reservedMap = reservedMap.getMap()
+        start = []
+        target = []
+        while len(start) < NUM_AGENT:
+            while True:
+                x = random.randint(0, 511)
+                y = random.randint(0, 511)
+                x2 = random.randint(0, 511)
+                y2 = random.randint(0, 511)
+                if reservedMap[x][y] == 0 and reservedMap[x2][y2] == 0 and getDistance((x, y), (x2, y2)) > 200:
+                    break
+            start.append((x, y))
+            target.append((x2, y2))
         agentList = []
         straightDistance = 0
         for i in range(0, NUM_AGENT):
