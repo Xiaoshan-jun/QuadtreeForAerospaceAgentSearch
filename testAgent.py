@@ -26,7 +26,7 @@ def getDistance(c1, c2):
 if __name__ == "__main__":
     #test parameter
     NUM_AGENT = 50
-    NUM_TESTING = 1
+    NUM_TESTING = 5
     RANDOM_POSITION = True
     maxDepth = 9 
     maps = 2 # 0 means normal, 1 means hard map ,2 means random
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         reservedMap = reservedMap.getMap()
         start = []
         target = []
-        while len(start) < NUM_AGENT:
+        while len(start) < NUM_AGENT :
             while True:
                 x = random.randint(0, 511)
                 y = random.randint(0, 511)
@@ -61,8 +61,8 @@ if __name__ == "__main__":
         agentList = []
         straightDistance = 0
         for i in range(0, NUM_AGENT):
-            current = tuple(start[i + NUM_AGENT * j])
-            destination = tuple(target[i + NUM_AGENT * j])
+            current = tuple(start[i])
+            destination = tuple(target[i])
             sd = abs(destination[0] - current[0]) + abs(destination[1] - current[1])
             agentList.append(agent(i + 1, current, destination, maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
             straightDistance += sd

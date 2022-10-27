@@ -823,7 +823,322 @@ fig.tight_layout()
 
 
 
+#------------------------------------------------------Random time
+#astar random time
+# art10 = [1591.4074339866638, 1657.7161989212036, 2023.2810487747192, 1606.7373728752136, 1762.8377168178558]
+# art20 = [3113.5203201770782, 3395.8058059215546, 2448.1489627361298, 3216.406983613968, 2821.5841932296753]
+# art30 = [6772.641670703888, 4613.278887987137, 4051.9304325580597, 3657.045259475708, 4410.570475578308]
+# art40 = [8116.536029338837, 6412.762358665466, 6016.935415506363, 8112.061033248901, 6687.163062572479]
+# art50 = [8899.014533042908, 9942.178032398224, 8840.536116361618, 7391.382253170013, 7026.855218887329]
 
+#hybrid random time
+# hmart10 = [1178.2264566421509, 1425.3807799816132, 1825.0345323085785, 1085.1276590824127, 958.5480966567993]
+# hmart20 = [1934.2473089694977, 2387.5100960731506, 1358.7994418144226, 2402.4492399692535, 1560.2103326320648]
+# hmart30 = [3736.119804382324, 2031.1993882656097, 1939.2188913822174, 1792.8967700004578, 1984.3342459201813]
+# hmart40 = [3261.2338325977325, 2496.7814638614655, 3091.425865650177, 4238.834998130798, 3749.325303554535]
+hmart50 = [3774.474682569504, 3515.7126994132996, 2704.2724153995514, 3137.960322380066, 4039.9575822353363]
+
+
+
+
+mean_value = []
+mean_value_column = np.mean(art10)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art20)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art30)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art40)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art50)
+mean_value.append(mean_value_column)
+std_deviation = []
+std_deviation_column = np.std(art10)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art20)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art30)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art40)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art50)
+std_deviation.append(std_deviation_column)
+
+conf_interval_low = []
+conf_interval_high = []
+low, high = st.t.interval(alpha=0.95, df=len(art10)-1, loc=np.mean(art10), scale=st.sem(art10)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art20)-1, loc=np.mean(art20), scale=st.sem(art20)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art30)-1, loc=np.mean(art30), scale=st.sem(art30)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art40)-1, loc=np.mean(art40), scale=st.sem(art40)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art50)-1, loc=np.mean(art50), scale=st.sem(art50)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+
+
+
+mean_value3 = []
+mean_value_column3 = np.mean(hmart10)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart20)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart30)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart40)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart50)
+mean_value3.append(mean_value_column3)
+std_deviation3 = []
+std_deviation_column3 = np.std(hmart10)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart20)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart30)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart40)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart50)
+std_deviation3.append(std_deviation_column3)
+
+
+conf_interval_low3 = []
+conf_interval_high3 = []
+low, high = st.t.interval(alpha=0.95, df=len(hmart10)-1, loc=np.mean(hmart10), scale=st.sem(hmart10)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart20)-1, loc=np.mean(hmart20), scale=st.sem(hmart20)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart30)-1, loc=np.mean(hmart30), scale=st.sem(hmart30)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart40)-1, loc=np.mean(hmart40), scale=st.sem(hmart40)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart50)-1, loc=np.mean(hmart50), scale=st.sem(hmart50)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+# Sets any on the negative, lower bound values equal to zero
+# Cannot have a negative uncertainty
+for i in range(len(conf_interval_low)):
+    if conf_interval_low[i] < 0:
+        conf_interval_low[i] = 0
+    
+        
+for i in range(len(conf_interval_low3)):
+    if conf_interval_low3[i] < 0:
+        conf_interval_low3[i] = 0
+
+# Defines figure and axes
+fig, ax = plt.subplots()
+plt.gcf().set_dpi(300)
+# Plots the number of agents (x-axis) against the mean value (y-axis) as points connected by a line
+ax.plot(np.arange(0, 5), mean_value3, 'o-')
+ax.plot(np.arange(0, 5), mean_value, 'o-')
+for i, v in enumerate(mean_value3):
+    ax.text(i, v+100, "%d.2" %v, ha = "center", c = 'b')
+    
+    
+for i, v in enumerate(mean_value):
+    ax.text(i, v+400, "%d.2" %v, ha = "center", c = 'orange')
+
+# Plots the 95% confidence interval
+ax.fill_between(np.arange(0, 5), conf_interval_low3, conf_interval_high3,
+                alpha=.3)
+
+
+ax.fill_between(np.arange(0, 5), conf_interval_low, conf_interval_high,
+                alpha=.3)
+
+
+# Adding grid
+plt.grid()
+# Axis Descriptors
+ax.set_ylabel('Process Time(s)')
+ax.set_xlabel('Number of  Agent')
+str_list = ['10', '20','30', '40', '50']
+ax.set_xticks(range(0,5))
+ax.set_xticklabels(str_list)
+ax.set_title('process time vs. number of agent(hard map)')
+# Legend
+
+leg = plt.legend(['hybrid' , 'A*'], loc='upper left')
+
+leg.get_frame().set_alpha(.9)
+fig.tight_layout()
+
+#------------------------------------------------------stress distance ratio
+# #astar hard dr
+# art10 = [1.621673459602014, 1.370831659300924, 1.3930552701869734, 1.4671909560088474, 1.3632275793155133]
+# art20 = [1.6156957044485736, 1.5678155774395703, 1.4628241366597026, 1.6083899127061105, 1.5616772306192102]
+# art30 = [1.7057648401826484, 1.6233819433065706, 1.6140138687308498, 1.473374714145704, 1.5248709701548357]
+# art40 = [1.6942770251589716, 1.596948428440647, 1.6516648371752654, 1.7278841769265847, 1.8756301524227508]
+# art50 = [1.6105124954726548, 1.5548430972505587, 1.5302137921439503, 1.7180547632629777, 1.6802836080199088]
+
+# #hybrid hard dr
+# hmart10 = [1.4754255574202828, 1.5110486139011652, 1.5543455927676186, 1.583435733595478, 1.2273295028728453]
+# hmart20 = [1.6232375122964258, 1.8084153983885407, 1.3632788496989063, 1.526066925315228, 1.4205265724037055]
+# hmart30 = [1.7932363013698631, 1.679747665082746, 1.4676665054023545, 1.4646357399542633, 1.5212057745530705]
+# hmart40 = [1.7468620403649433, 1.5849252364967958, 1.5686059275521405, 1.9868331053351573, 1.933100053377617]
+hmart50 = [1.5754911672445104, 1.6351230530327985, 1.549581377341141, 1.6699703128568166, 1.8600589915258205]
+
+# #astar fail
+# art10 = [0, 0, 0, 0, 0]
+# art20 = [0, 0, 0, 0, 0]
+# art30 = [1, 0, 0, 0, 0]
+# art40 = [1, 1, 2, 1, 1]
+# art50 = [1, 2, 2, 0, 1]
+
+# hastar fail
+# hmart10 = [0, 0, 0, 0, 0]
+# # #hart20 = [0, 0, 0, 0, 0]
+# # #hart30 = [1, 0, 0, 0, 0]
+# hart40 = [0, 0, 0, 0, 0]
+hart50 = [0, 0, 0, 0, 0]
+
+
+
+
+mean_value = []
+mean_value_column = np.mean(art10)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art20)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art30)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art40)
+mean_value.append(mean_value_column)
+mean_value_column = np.mean(art50)
+mean_value.append(mean_value_column)
+std_deviation = []
+std_deviation_column = np.std(art10)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art20)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art30)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art40)
+std_deviation.append(std_deviation_column)
+std_deviation_column = np.std(art50)
+std_deviation.append(std_deviation_column)
+
+conf_interval_low = []
+conf_interval_high = []
+low, high = st.t.interval(alpha=0.95, df=len(art10)-1, loc=np.mean(art10), scale=st.sem(art10)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art20)-1, loc=np.mean(art20), scale=st.sem(art20)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art30)-1, loc=np.mean(art30), scale=st.sem(art30)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art40)-1, loc=np.mean(art40), scale=st.sem(art40)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(art50)-1, loc=np.mean(art50), scale=st.sem(art50)) 
+conf_interval_low.append(low)
+conf_interval_high.append(high)
+
+
+
+mean_value3 = []
+mean_value_column3 = np.mean(hmart10)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart20)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart30)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart40)
+mean_value3.append(mean_value_column3)
+mean_value_column3 = np.mean(hmart50)
+mean_value3.append(mean_value_column3)
+std_deviation3 = []
+std_deviation_column3 = np.std(hmart10)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart20)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart30)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart40)
+std_deviation3.append(std_deviation_column3)
+std_deviation_column3 = np.std(hmart50)
+std_deviation3.append(std_deviation_column3)
+
+
+conf_interval_low3 = []
+conf_interval_high3 = []
+low, high = st.t.interval(alpha=0.95, df=len(hmart10)-1, loc=np.mean(hmart10), scale=st.sem(hmart10)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart20)-1, loc=np.mean(hmart20), scale=st.sem(hmart20)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart30)-1, loc=np.mean(hmart30), scale=st.sem(hmart30)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart40)-1, loc=np.mean(hmart40), scale=st.sem(hmart40)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+low, high = st.t.interval(alpha=0.95, df=len(hmart50)-1, loc=np.mean(hmart50), scale=st.sem(hmart50)) 
+conf_interval_low3.append(low)
+conf_interval_high3.append(high)
+# Sets any on the negative, lower bound values equal to zero
+# Cannot have a negative uncertainty
+for i in range(len(conf_interval_low)):
+    if conf_interval_low[i] < 0:
+        conf_interval_low[i] = 0
+    
+        
+for i in range(len(conf_interval_low3)):
+    if conf_interval_low3[i] < 0:
+        conf_interval_low3[i] = 0
+
+# Defines figure and axes
+fig, ax = plt.subplots()
+plt.gcf().set_dpi(300)
+# Plots the number of agents (x-axis) against the mean value (y-axis) as points connected by a line
+ax.plot(np.arange(0, 5), mean_value3, 'o-')
+ax.plot(np.arange(0, 5), mean_value, 'o-')
+for i, v in enumerate(mean_value3):
+    print(v)
+    ax.text(i, v+0.06, "%.2f" %v, ha = "center", c = 'b')
+    
+    
+for i, v in enumerate(mean_value):
+    ax.text(i, v-0.06, "%.2f" %v, ha = "center", c = 'orange')
+
+# Plots the 95% confidence interval
+ax.fill_between(np.arange(0, 5), conf_interval_low3, conf_interval_high3,
+                alpha=.3)
+
+
+ax.fill_between(np.arange(0, 5), conf_interval_low, conf_interval_high,
+                alpha=.3)
+
+
+# Adding grid
+plt.grid()
+# Axis Descriptors
+ax.set_ylabel('Distance Ratio(actual travel distance/straight distance)')
+ax.set_xlabel('Number of  Agent')
+str_list = ['10', '20','30', '40', '50']
+ax.set_xticks(range(0,5))
+ax.set_xticklabels(str_list)
+ax.set_title('distance ratio vs. number of agent(hard map)')
+# Legend
+
+leg = plt.legend(['hybrid', 'A*'], loc='upper left')
+
+leg.get_frame().set_alpha(.9)
+fig.tight_layout()
 
 
 
