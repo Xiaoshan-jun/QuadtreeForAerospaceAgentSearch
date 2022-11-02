@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jun 21 15:57:26 2022
-
+test if the code working,  unimportant
 @author: dekom
 """
 from include.obstacle import obstacle

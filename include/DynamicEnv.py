@@ -42,8 +42,8 @@ class DynamicEnv(object):
                 self.agentList.remove(agent)                
             else:
                 agent.searchAndPlot()
-                agent.move(self.t + 1)
-                agent.record(self.t + 1)
+                agent.move()
+                agent.record()
         #update reserved map according to the air space control
         
         print("time: ", self.t)

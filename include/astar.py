@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Mar  4 13:24:46 2022
-
-@author: dekom
+astar for MSA*
+@author:Jun Xiang 
+@email: jxiang9143@sdsu.edu 
 """
 import time
 import numpy as np

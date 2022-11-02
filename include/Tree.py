@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Oct 13 13:27:48 2021
-Tree Class save the root node which represents the map.
-Tree Class has functions that create all the child nodes.
+update 2022/11/1
+This class is useless now
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """

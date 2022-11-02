@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 18 01:24:26 2021
-
+test if A star is working
+unimportant
 @author: dekom
 """
 from include.Tree import Tree
