@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct 22 22:23:00 2021
-agent has function divide the airspace into nodes with quadtree method.
-the agent can find a path to the destination with MRA*, reserve some space, and save the move plan.
+agent is the core object, that save agent information and do all the path planning
 @author:Jun Xiang 
 @email: jxiang9143@sdsu.edu 
 """
 import matplotlib.pyplot as plt
-from math import hypot
 import numpy as np
 from include.Node import Node
 from include.astar import search, PriorityQueue
@@ -18,30 +16,38 @@ class agent(object):
     
     def __init__(self, agentNumber, position, target, maxDepth, vertex, leafCapacity, reservedMap, eDistance = 2, alpha = 2, beta = 0.75):
         #definition: initial the agent
-        #Parameters: agentNumber, position, target, maxDepth, vertex, leafCapacity, reservedMap, eDistance = 2, alpha = 2, beta = 0.75
         self.agentNumber = agentNumber #the unique number of the agent.
         self.root = Node(maxDepth, 0, vertex, pow(2,maxDepth), None, None, reservedMap, leafCapacity) #the root node
         self.maxDepth = maxDepth #a map attribute
         self.position = position #current position of agent in (x, y)
-        self.currentNode = None #current node where the agent locate
-        self.currentNodeIndex = 0  #the index of currentNode in RequiredNode list. RequiredNode[currentNodeIndex] == currentNode
-        self.target = target #current target position in (x, y)
-        self.targetNode = None #target node where the destination locate
-        self.targetNodeIndex = 1000000 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
-        self.RequiredNode = [] #a list of nodes that build the search graph
         self.bestPath = False #false means need to search, True means searching, a list of the position means best path is found
-        self.eDistance = eDistance #parameter for the node open function
-        self.alpha = alpha #parameter for the node open function
-        self.beta = beta #parameter for the node open function
-        self.alphaboost = 10000000
         self.reservedMap = reservedMap
         self.searchtime = 0
         self.history = [] #move history
         self.arrive = False #a boolean if the agent reach the destination
-        self.loop = 0 #key value decide the alpha
-        self.MSA = True
+        self.MSA = True #if True, the agent will plan the path with MSA*
         self.bestPathtype = True #false means A*
-    
+        #-------MSA only ----------
+        self.currentNode = None #current node where the agent locate(MSA only)
+        self.currentNodeIndex = 0  #the index of currentNode in RequiredNode list. RequiredNode[currentNodeIndex] == currentNode
+        self.target = target #current target position in (x, y)
+        self.targetNode = None #target node where the destination locate
+        self.targetNodeIndex = 1000000 #the index of targetNode in RequiredNode list. RequiredNode[targetNodeIndex] == targetNode
+        self.RequiredNode = [] #a list of nodes that build the search graph (MSA only)
+        self.eDistance = eDistance #parameter for the node open function, always be equal to 2 in the paper
+        self.alpha = alpha #parameter for the node open function
+        self.beta = beta #parameter for the node open function
+        #-------adaptive parameter----------------------------
+        self.loop = 0 #key value decide the alpha 
+        self.alphaboost = 10000000
+        self.d_h = 30
+        self.alpha_h = 2.5
+        self.t_h = 1
+        self.dalpha = 0.25
+        self.betal = 0.25
+        self.betah = 0.75
+        self.x_r = 15
+        
     def searchAndPlot(self):
         #1. find the required nodes.
         #2. save the results of the search
@@ -52,26 +58,26 @@ class agent(object):
             if self.bestPath != False:
                 return self
             #intelligent alpha modification
-            if self.alpha > 2.5:
+            if self.alpha > self.alpha_h:
                 self.MSA = False
                 self.alpha = 2
-                self.beta = 0.25
+                self.beta = self.betal
                 return self
             distToDestination = self.getDistance(self.position, self.target)
-            if distToDestination < 30:
+            if distToDestination < self.d_h:
                 self.MSA = False
             if len(self.history) > 10:
                 if self.loop > 4 or self.position == self.history[-2]:
-                    self.alpha = self.alpha + 0.25
-                    self.beta = self.beta + 0.25
+                    self.alpha = self.alpha + self.dalpha
+                    self.beta = self.betah
                     self.loop = 0
-                    self.alphaboost = 15
+                    self.alphaboost += self.x_r
                     print("agent stuck in a loop current alpha =", self.alpha )  
             if self.alphaboost > 0:
                 self.alphaboost = self.alphaboost- 1
             else:
-                self.alpha = self.alpha - 0.25
-                self.beta = self.beta - 0.25
+                self.alpha = self.alpha - self.dalpha
+                self.beta = self.betal
                 self.alphaboost = 10000000
             #find required nodes
             if self.alpha < 2:
@@ -131,15 +137,14 @@ class agent(object):
                 for n in path:
                     self.reservedMap[n] = self.agentNumber
             time_end = time.time()
-            if time_end - time_start > 5:
+            if time_end - time_start > self.t_h:
                 self.MSA = True
             self.searchtime += time_end - time_start
             #self.plotTree()
             return self
     
-    def move(self, t):
-        #definition: move the agent to the new position
-        #Parameters: step: how many steps the agent will go along the path
+    def move(self):
+        #definition: move the agent to the first position in the planned path.
         #Returns: None
         if self.ifArrive() == False:
             if self.bestPath != False:
@@ -223,7 +228,7 @@ class agent(object):
             print("agent", self.agentNumber, " has arrived")
         #self.bestPath = False
         
-    def record(self, t):
+    def record(self):
         self.history.append(self.position)
     
     def findRequiredNode(self):
@@ -299,6 +304,7 @@ class agent(object):
         plt.gca().add_patch(node.drawTargetSquare())
         #draw target
         #plt.title('reach destination ')
+        plt.title('moving along new reserved path to destination', fontsize = 20)
         plt.show()
         return None
     
@@ -319,7 +325,9 @@ class agent(object):
         plt.gca().add_patch(self.getCurrentNode().drawAgent())
         plt.gca().add_patch(self.getTargetNode().drawTarget())
         plt.axis('scaled')
-        plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target))
+        plt.title('searched path from ' + str(self.position) + ' to ' + str(self.target), fontsize = 20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         return plt
                 
                

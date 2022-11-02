@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Dec  4 03:21:11 2021
-
+create the map environment
 @author: Jun Xiang
 """
 import numpy as np
