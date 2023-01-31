@@ -152,18 +152,18 @@ target = np.genfromtxt("target9.csv", delimiter=',', dtype = int)
 reservedMap = obstacle(maxDepth, maps, 1)
 reservedMap = reservedMap.getMap()
 time = []
-start = []
-target = []
-while len(start) < 1000 :
-    while True:
-        x = random.randint(0, 511)
-        y = random.randint(0, 511)
-        x2 = random.randint(0, 511)
-        y2 = random.randint(0, 511)
-        if reservedMap[x][y] == 0 and reservedMap[x2][y2] == 0 and getDistance((x, y), (x2, y2)) > 200:
-            break
-    start.append((x, y))
-    target.append((x2, y2))
+# start = []
+# target = []
+# while len(start) < 1000 :
+#     while True:
+#         x = random.randint(0, 511)
+#         y = random.randint(0, 511)
+#         x2 = random.randint(0, 511)
+#         y2 = random.randint(0, 511)
+#         if reservedMap[x][y] == 0 and reservedMap[x2][y2] == 0 and getDistance((x, y), (x2, y2)) > 200:
+#             break
+#     start.append((x, y))
+#     target.append((x2, y2))
 for i in range(1000):
     current = tuple(start[i])
     destination = tuple(target[i])
