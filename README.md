@@ -52,7 +52,7 @@ matplotlib
 
 @author:Jun Xiang 
 
-@email: jxiang9143@sdsu.edu 
+@email: jxiang@ucsd.edu, jxiang9143@sdsu.edu 
 
 ## Version History
 
