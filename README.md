@@ -1,6 +1,14 @@
 # Quadtree for Aerospace Agent Saearch
-Quadtree represents a 2d grid-base world
+## Usage
+main.py will do the following
+1. generate the simulated map
+2. generate random tasks for agents
+3. assign tasks to the agents
+4. create the dynamicEnv, that manages all the agents and the airspace, and record agents fly history.
+5. record expeirence results
 
+search mode switch:
+include/agent.py, modify the function searchAndPlot() at line 52. 
 ## Description
 DynamicEnv.py: DynamicEnv manages all the agents and the airspace
 This manager can receive the move plan from all the agents, and approve the move for a specific time. 
