@@ -22,13 +22,16 @@ DynamicEnv.py: DynamicEnv manages all the agents and the airspace
 This manager can receive the move plan from all the agents, and approve the move for a specific time. 
 Meanwhile, this manager can publish all the air space control information. Reserve the airspace the agents should not enter.
 
-agent.py: agent has function divide the airspace into nodes with quadtree method. the agent can find a path to the destination with MRA*, reserve some space, and save the move plan.
+agent.py: agent has function divide the airspace into nodes with quadtree method. the agent can find a path to the destination with search methods, reserve some space, and save the move plan.
 
 Node.py: Nodes represent areas in the world. Each parent node has four children.  Node saves the location of the area, the cost to reach this area, and the cost to leave this area and the number of available space.
 
-global reservedMap: it is a 2d-array save the map information. Agent, DynamicEnv, Node share a same array.
+obstacle.py: creat the global reservedMap, which is a 2d-array save the map information. Agent, DynamicEnv, Node share a same array.
 
-## Getting Started
+astar.py: A* functions for MSA* search
+
+astarastar.py: A* functions for A* search
+
 
 ### Dependencies
 python 3.7
