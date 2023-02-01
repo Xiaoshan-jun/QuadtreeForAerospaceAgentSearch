@@ -1,15 +1,23 @@
 # Quadtree for Aerospace Agent Saearch
 ## Usage
 main.py will do the following
-1. generate the simulated map
+1. generate the simulated airspace
 2. generate random tasks for agents
 3. assign tasks to the agents
-4. create the dynamicEnv, that manages all the agents and the airspace, and record agents fly history.
+4. create the **dynamicEnv**
 5. record expeirence results
 
 search mode switch:
 include/agent.py, modify the function searchAndPlot() at line 52. 
 ## Description
+to navigate the flight agent, we transfer airspace to a grid world. 
+
+the proposed quadtree A* search algorithm can divide the airspace in multiple vary grids. The more important partial of airspace will be divided into a larger amount of grid(each grid is smaller and accurate), and the less important partial of airspace will be divided into a smaller amount of grid(each grid is larger and inaccuate). 
+
+then, we can decrease the search space and search time while keep optimization. 
+
+
+## Important function for search algorithm
 DynamicEnv.py: DynamicEnv manages all the agents and the airspace
 This manager can receive the move plan from all the agents, and approve the move for a specific time. 
 Meanwhile, this manager can publish all the air space control information. Reserve the airspace the agents should not enter.
@@ -20,34 +28,7 @@ Node.py: Nodes represent areas in the world. Each parent node has four children.
 
 global reservedMap: it is a 2d-array save the map information. Agent, DynamicEnv, Node share a same array.
 
-
-
-
-## Important function for search algorithm
-Tree(maxDepth,costMap, moveCostMap): Create the Tree. costMap/moveCostMap is predefined map property. maxDepth determined the size of the world. for example, if the size of world is 32*32, the maxDepth should be 5.
-
-agent(tree, position, target): Create the agent. **position** is the agent's start position, **target** is the destination of the agent.
-
-agent.getRequiredNode(): get all the node we need to build the path graph
-
-agent.getGraph(): get path graph
-
-agent.getCurrentNodeIndex(): get the index denotes the agent currently locate
-
-agent.getTargetNodeIndex(): get the index denotes the node the target currently locate
-
-agent.move(step): move the agent to desired position
-
 ## Getting Started
-*testRun.py is the sample code show how we build the path graph and move agent on the graph
-
-you should be fine if you can understand how **testRunAstar** work. If you run it correctly, the output results should look like:
-
-![alt text](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/Figure%202021-11-01%20165843.png)
-
-
-all the code is comment, please contact me if you have any question. 
-
 
 ### Dependencies
 python 3.7
@@ -55,6 +36,10 @@ python 3.7
 numpy
 
 matplotlib
+
+time
+
+random
 
 ## Authors
 
