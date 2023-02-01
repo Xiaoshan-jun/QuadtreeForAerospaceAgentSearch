@@ -22,25 +22,28 @@ if __name__ == "__main__":
     #test parameter
     NUM_AGENT = 10
     NUM_TESTING = 10 #attention: can not exceed 99
-    maxDepth = 9 #only support 9
-    maps = 2 # 0 means normal, 1 means hard map ,2 means random
-    vertex = [0, 0]
+    #---------------------map information--------------------------------------
+    maxDepth = 9 #only support 9, map size
+    maps = 2 # 0 means easy, 1 means hard map ,2 means random
+    #-------------------initial parameter for agnet--------------------------
+    vertex = [0, 0] #the world starts at [0, 0]
     leafCapacity = 1
     a = (1, 1)
     alpha = 2
     beta = 0.75
-    #start9 means normal, start means hard
-    # start = np.genfromtxt('start.csv', delimiter=',', dtype = int)
-    # target = np.genfromtxt("target.csv", delimiter=',', dtype = int)
-    #
+    #----------------------------result record----------------------------------
     t = [] #record process time
     dr = [] #record travel distance/manhatton distance
     iterations = [] #record iteration time
     fail = [] #record fail
+    
+    #------------------------------------test start--------------------------------
     for j in range(NUM_TESTING):
+        #--------------------------------generate the simulated map---------------------
         random.seed(j)
         reservedMap = obstacle(maxDepth, maps, j)
         reservedMap = reservedMap.getMap()
+        #--------------------------------generate the tasks-------------------------------------------
         start = []
         target = []
         while len(start) < NUM_AGENT :
@@ -53,6 +56,7 @@ if __name__ == "__main__":
                     break
             start.append((x, y))
             target.append((x2, y2))
+        #--------------------------------------assign tasks to the agent---------------------
         agentList = []
         straightDistance = 0
         for i in range(0, NUM_AGENT):
@@ -61,10 +65,11 @@ if __name__ == "__main__":
             sd = abs(destination[0] - current[0]) + abs(destination[1] - current[1])
             agentList.append(agent(i + 1, current, destination, maxDepth, vertex, leafCapacity, reservedMap, alpha, 2, beta))
             straightDistance += sd
+        #---------------------------------------create the dynamic environment--------------------
         dynamic_env = DynamicEnv(reservedMap, agentList, j)
         t0 = time.time()
         ct = time.time() 
-
+        #start search and fly!
         while len(agentList) > 0:
             if time.time() - ct > 1:
                 print(time.time())
@@ -72,7 +77,7 @@ if __name__ == "__main__":
                 dynamic_env.step()
         
         t1 = time.time() - t0
-        print(t1)
+        #------------------------------record results---------------------------------------
         t.append(t1)
         dr.append(dynamic_env.totalDistance/straightDistance)
         iterations.append(dynamic_env.t)

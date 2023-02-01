@@ -6,7 +6,6 @@ This manager can receive the move plan from all the agents, and approve the move
 Meanwhile, this manager can publish all the air space control information. Reserve the airspace the agents should not enter.
 @author: Jun Xiang
 """
-import multiprocessing
 import random
 import numpy as np
 

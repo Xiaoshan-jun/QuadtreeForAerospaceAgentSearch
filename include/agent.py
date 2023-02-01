@@ -49,10 +49,14 @@ class agent(object):
         self.x_r = 15
         
     def searchAndPlot(self):
+        #------------------mode switch-----------------
+        #uncomment self.MSA = False for A*, uncomment self.MSA = True for MSA*, comment both for hybrid search.
+        #self.MSA = False
+        #self.MSA = True
+        #-------------------mode switch----------------
         #1. find the required nodes.
         #2. save the results of the search
         #3. reserve some space
-        self.MSA = False
         if self.MSA:
             time_start = time.time()
             if self.bestPath != False:
