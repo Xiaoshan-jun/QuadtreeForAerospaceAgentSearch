@@ -21,10 +21,10 @@ def getDistance(c1, c2):
 if __name__ == "__main__":
     #test parameter
     NUM_AGENT = 10
-    NUM_TESTING = 10 #attention: can not exceed 99
+    NUM_TESTING = 1 #attention: can not exceed 99
     #---------------------map information--------------------------------------
     maxDepth = 9 #only support 9, map size
-    maps = 2 # 0 means easy, 1 means hard map ,2 means random
+    maps = 1 # 0 means easy, 1 means hard map ,2 means random
     #-------------------initial parameter for agnet--------------------------
     vertex = [0, 0] #the world starts at [0, 0]
     leafCapacity = 1
@@ -48,10 +48,10 @@ if __name__ == "__main__":
         target = []
         while len(start) < NUM_AGENT :
             while True:
-                x = random.randint(0, 511)
-                y = random.randint(0, 511)
-                x2 = random.randint(0, 511)
-                y2 = random.randint(0, 511)
+                x = random.randint(0, 2**maxDepth - 1)
+                y = random.randint(0, 2**maxDepth - 1)
+                x2 = random.randint(0, 2**maxDepth - 1)
+                y2 = random.randint(0, 2**maxDepth - 1)
                 if reservedMap[x][y] == 0 and reservedMap[x2][y2] == 0 and getDistance((x, y), (x2, y2)) > 200:
                     break
             start.append((x, y))

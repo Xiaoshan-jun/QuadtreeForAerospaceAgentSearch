@@ -111,7 +111,7 @@ a(50) = length(agent50)
 %% plot multi agent fly
 %plot 
 %0 is free space, 99 means permnant obstacle, 100 means temprary obstacle, 101 means regular flight
-for i = 1:7
+for i = 1:929
 fig = figure(i);
 F = sprintf('history/reservedMap%d.csv', i);
 %F = sprintf("history/reservedMapTest.csv");
@@ -138,7 +138,7 @@ axis([0 512 0 512])
 str = sprintf("ten agents moving time:%d", i);
 %str = sprintf("Realistic Map");
 title(str)
-filename = sprintf("special map test ten agents moving time%d.png", i);
+filename = sprintf("history/special map test ten agents moving time%d.png", i);
 %filename = 'Realistic Map.png';
 print(filename, '-dpng', '-r600');
 close(fig)

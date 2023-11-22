@@ -82,19 +82,27 @@ class DynamicEnv(object):
     
     def regularAirplane(self):
         for i in range(60, 452):
-            self.reservedMap[i][251] = 101
-            self.reservedMap[i][260] = 101
+            if self.reservedMap[i][251] == 0:
+                self.reservedMap[i][251] = 101
+            if self.reservedMap[i][260] == 0:
+                self.reservedMap[i][260] = 101
         for j in range(60, 452):
-            self.reservedMap[251][j] = 101
-            self.reservedMap[260][j] = 101
+            if self.reservedMap[251][j] == 0:
+                self.reservedMap[251][j] = 101
+            if self.reservedMap[260][j] == 0:
+                self.reservedMap[260][j] = 101
             
     def regularAirplanePause(self):
         for i in range(60, 452):
-            self.reservedMap[i][251] = 0
-            self.reservedMap[i][260] = 0
+            if self.reservedMap[i][251] == 101:
+                self.reservedMap[i][251] = 0
+            if self.reservedMap[i][260] == 101:
+                self.reservedMap[i][260] = 0
         for j in range(60, 452):
-            self.reservedMap[251][j] = 0
-            self.reservedMap[260][j] = 0
+            if self.reservedMap[251][j] == 101:
+                self.reservedMap[251][j] = 0
+            if self.reservedMap[260][j] == 101:
+                self.reservedMap[260][j] = 0
             
             
             
