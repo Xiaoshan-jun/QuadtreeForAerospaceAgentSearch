@@ -73,7 +73,7 @@ class DynamicEnv(object):
             for i in range(x, x + width):
                 for j in range(y , y + length):
                     if i < len(self.reservedMap) and j < len(self.reservedMap):
-                        if self.reservedMap[i][j] != 99:
+                        if self.reservedMap[i][j] != 99 and self.reservedMap[i][j] != 101:
                             self.reservedMap[i][j] = 100
         #regular 
         

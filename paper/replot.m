@@ -111,7 +111,7 @@ a(50) = length(agent50)
 %% plot multi agent fly
 %plot 
 %0 is free space, 99 means permnant obstacle, 100 means temprary obstacle, 101 means regular flight
-for i = 1:929
+for i = 1:754
 fig = figure(i);
 F = sprintf('history/reservedMap%d.csv', i);
 %F = sprintf("history/reservedMapTest.csv");
