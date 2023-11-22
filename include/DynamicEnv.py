@@ -46,8 +46,8 @@ class DynamicEnv(object):
         #update reserved map according to the air space control
         
         print("time: ", self.t)
-        #fn = "history/reservedMap" + str(self.t + 1) + '.csv'
-        #np.savetxt(fn, self.reservedMap, delimiter=',')
+        fn = "history/reservedMap" + str(self.t + 1) + '.csv'
+        np.savetxt(fn, self.reservedMap, delimiter=',')
         self.t = self.t + 1
         if self.t == 2000:
             self.left = len(self.agentList)

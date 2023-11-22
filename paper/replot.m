@@ -108,16 +108,49 @@ a(48) = length(agent48)
 a(49) = length(agent49)
 a(50) = length(agent50)
 
-%%
-
+%% plot multi agent fly
+%plot 
+%0 is free space, 99 means permnant obstacle, 100 means temprary obstacle, 101 means regular flight
+for i = 1:7
+fig = figure(i);
+F = sprintf('history/reservedMap%d.csv', i);
+%F = sprintf("history/reservedMapTest.csv");
+reservedMap = load(F);
+cmap = colormap(lines);
+for x = 1:512
+    for y = 1:512
+        c = reservedMap(x,y);
+        if c == 0
+            
+        elseif c == 99
+            rectangle('Position',[x y 1 1], 'FaceColor',[0 0 0],'EdgeColor', [0, 0, 0], 'LineWidth', 0.001)
+        elseif c == 100
+            rectangle('Position',[x y 1 1], 'FaceColor','b','EdgeColor', 'b')
+        elseif c == 101
+            rectangle('Position',[x y 1 1], 'FaceColor','r', 'EdgeColor', 'g','LineWidth', 0.001 )
+        else
+            rectangle('Position',[x y 1 1], 'FaceColor',cmap(c * 3, :), 'EdgeColor', cmap(c * 3, :),'LineWidth', 0.001 )
+        end
+    end
+end
+axis square
+axis([0 512 0 512])
+str = sprintf("ten agents moving time:%d", i);
+%str = sprintf("Realistic Map");
+title(str)
+filename = sprintf("special map test ten agents moving time%d.png", i);
+%filename = 'Realistic Map.png';
+print(filename, '-dpng', '-r600');
+close(fig)
+end
 
 %%
 %plot 
 %0 is free space, 99 means permnant obstacle, 100 means temprary obstacle, 101 means regular flight
 for i = 1:1
 fig = figure(i);
-F = sprintf('history/reservedMap%d.csv', i);
-%F = sprintf("history/reservedMapTest.csv");
+%F = sprintf('history/reservedMap%d.csv', i);
+F = sprintf("history/reservedMapTest.csv");
 reservedMap = load(F);
 cmap = colormap(lines);
 for x = 1:512
