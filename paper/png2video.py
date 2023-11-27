@@ -9,7 +9,7 @@ import os
 import tqdm
 # Parameters
 folder_path = 'history'
-output = 'output_video.avi'
+output = 'multiagent.mp4'
 frame_rate = 30  # frames per second
 size = (1920, 1080)  # video size
 
@@ -26,7 +26,7 @@ files_with_ctime = [(file, os.path.getctime(os.path.join(folder_path, file)))
 sorted_files = [file for file, _ in sorted(files_with_ctime, key=lambda x: x[1])]
 
 # Write each sorted file to the video
-for file in tqdm(sorted_files):
+for file in tqdm.tqdm(sorted_files):
     image_path = os.path.join(folder_path, file)
     frame = cv2.imread(image_path)
     frame = cv2.resize(frame, size)  # Resize frame
