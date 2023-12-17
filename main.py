@@ -13,24 +13,24 @@ import random
 
 
 def getDistance(c1, c2):
-    #important
+    """get euclidean distance between two grid"""
     x = c1[0] - c2[0]
     y = c1[1] - c2[1]
     return np.sqrt(x**2 + y**2)
 
 if __name__ == "__main__":
     #test parameter
-    NUM_AGENT = 10
-    NUM_TESTING = 1 #attention: can not exceed 99
+    NUM_AGENT = 10 #attention: can not exceed 99
+    NUM_TESTING = 1 
     #---------------------map information--------------------------------------
     maxDepth = 9 #only support 9, map size
     maps = 1 # 0 means easy, 1 means hard map ,2 means random
     #-------------------initial parameter for agnet--------------------------
     vertex = [0, 0] #the world starts at [0, 0]
-    leafCapacity = 1
-    a = (1, 1)
-    alpha = 2
-    beta = 0.75
+    leafCapacity = 1 #the number of agents can be in the same grid.
+    a = (1, 1) 
+    alpha = 2 
+    beta = 0.75 
     #----------------------------result record----------------------------------
     t = [] #record process time
     dr = [] #record travel distance/manhatton distance
