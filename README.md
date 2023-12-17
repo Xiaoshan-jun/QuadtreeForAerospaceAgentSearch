@@ -1,11 +1,12 @@
-# Quadtree for Aerospace Agent Saearch
+# Quadtree for Aerospace Agent Search
+![](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/paper/figure/jdcgpapergif.gif)
 ## Usage
 main.py will do the following
 1. generate the simulated airspace
 2. generate random tasks for agents
 3. assign tasks to the agents
 4. create the **dynamicEnv**
-5. record expeirence results
+5. record experience results
 
 search mode switch:
 include/agent.py, modify the function searchAndPlot() at line 52. 
