@@ -1,4 +1,7 @@
 # Quadtree for Aerospace Agent Search
+this repository we release models from the papers
+
+- [Hybrid Multiscale Search for Dynamic Planning of Multi-Agent Drone Traffic](https://arc.aiaa.org/doi/full/10.2514/1.G007343)
 ![](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/paper/figure/jdcgpapergif.gif)
 ## Usage
 main.py will do the following
@@ -53,8 +56,18 @@ random
 
 
 
-## Acknowledgments
-related paper
-Dynamic Unmanned Aircraft System Traffic Volume Reservation Based on Multi-Scale A* Algorithm 
-https://arc.aiaa.org/doi/10.2514/6.2022-2236
+## Bibtex
+
+```
+@article{xiang2023hybrid,
+  title={Hybrid Multiscale Search for Dynamic Planning of Multi-Agent Drone Traffic},
+  author={Xiang, Jun and Chen, Jun and Liu, Yanchao},
+  journal={Journal of Guidance, Control, and Dynamics},
+  volume={46},
+  number={10},
+  pages={1963--1974},
+  year={2023},
+  publisher={American Institute of Aeronautics and Astronautics}
+}
+```
 
