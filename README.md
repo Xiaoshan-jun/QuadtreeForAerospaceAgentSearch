@@ -1,5 +1,5 @@
 # Quadtree for Aerospace Agent Search
-this repository we release models from the papers
+this repository we release code from the papers
 
 - [Hybrid Multiscale Search for Dynamic Planning of Multi-Agent Drone Traffic](https://arc.aiaa.org/doi/full/10.2514/1.G007343)
 ![](https://github.com/Xiaoshan-jun/QuadtreeForAerospaceAgentSearch/blob/main/paper/figure/jdcgpapergif.gif)
